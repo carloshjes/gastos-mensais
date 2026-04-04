@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <title>Monitoramento de Gastos</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+<body>
+
+    <div id="banner-offline" class="banner-offline" style="display: none;">
+        <span>⚡ Sem conexão — você está offline. Algumas funções podem não funcionar.</span>
+    </div>
+
+    <div class="container">
+        
+        <div class="cabecalho-principal">
+            <div class="logo-container">
+                <div class="logo-icone">📊</div>
+                <h1 class="logo-marca">Gastos <span>Mensais</span></h1>
+            </div>
+            <div class="acoes-topo">
+                <button id="btn-tema" class="btn-acao icon-btn" title="Alternar Tema">
+                    ☀️ Modo Claro
+                </button>
+                <button id="btn-sair-nav" class="btn-acao btn-sair" style="display: none;">
+                    Sair 🚪
+                </button>
+            </div>
+        </div>
+        
+        <div id="tela-login" class="animado">
+            <div class="card-login">
+                <div class="login-icone-container">
+                    <div class="icone-login-barras">
+                        <svg viewBox="0 0 32 32" width="80" height="80">
+                            <rect x="7" y="22" width="4" height="8" rx="1" fill="#00e5ff" opacity="0.7">
+                                <animate attributeName="height" values="8;14;8" dur="2.5s" repeatCount="indefinite"/>
+                                <animate attributeName="y" values="22;16;22" dur="2.5s" repeatCount="indefinite"/>
+                            </rect>
+                            <rect x="14" y="16" width="4" height="14" rx="1" fill="#00e5ff" opacity="0.85">
+                                <animate attributeName="height" values="14;20;14" dur="2.5s" begin="0.2s" repeatCount="indefinite"/>
+                                <animate attributeName="y" values="16;10;16" dur="2.5s" begin="0.2s" repeatCount="indefinite"/>
+                            </rect>
+                            <rect x="21" y="10" width="4" height="20" rx="1" fill="#00e5ff">
+                                <animate attributeName="height" values="20;26;20" dur="2.5s" begin="0.4s" repeatCount="indefinite"/>
+                                <animate attributeName="y" values="10;4;10" dur="2.5s" begin="0.4s" repeatCount="indefinite"/>
+                            </rect>
+                            <circle cx="9" cy="18" r="1.2" fill="#39ff14">
+                                <animate attributeName="cy" values="18;12;18" dur="2.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="16" cy="12" r="1.2" fill="#39ff14">
+                                <animate attributeName="cy" values="12;6;12" dur="2.5s" begin="0.2s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="23" cy="6" r="1.2" fill="#39ff14">
+                                <animate attributeName="cy" values="6;0;6" dur="2.5s" begin="0.4s" repeatCount="indefinite"/>
+                            </circle>
+                            <line x1="9" y1="18" x2="16" y2="12" stroke="#39ff14" stroke-width="0.5" opacity="0.4">
+                                <animate attributeName="y1" values="18;12;18" dur="2.5s" repeatCount="indefinite"/>
+                                <animate attributeName="y2" values="12;6;12" dur="2.5s" begin="0.2s" repeatCount="indefinite"/>
+                            </line>
+                            <line x1="16" y1="12" x2="23" y2="6" stroke="#39ff14" stroke-width="0.5" opacity="0.4">
+                                <animate attributeName="y1" values="12;6;12" dur="2.5s" begin="0.2s" repeatCount="indefinite"/>
+                                <animate attributeName="y2" values="6;0;6" dur="2.5s" begin="0.4s" repeatCount="indefinite"/>
+                            </line>
+                        </svg>
+                    </div>
+                </div>
+                <h2 id="titulo-login">Acesso Restrito</h2>
+                <p class="login-subtitulo">Gerencie suas finanças de forma inteligente</p>
+                <form id="form-login">
+    <div class="input-group">
+        <label for="email-login">E-mail</label>
+        <input type="email" id="email-login" placeholder="seu@email.com" required>
+    </div>
+    <div class="input-group">
+        <label for="senha-login">Senha</label>
+        <div class="campo-senha-wrapper">
+            <input type="password" id="senha-login" placeholder="••••••••" required minlength="6">
+            <button type="button" class="btn-toggle-senha" data-alvo="senha-login" title="Mostrar senha">
+                <svg class="icone-olho-aberto" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icone-olho-fechado" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+        </div>
+    </div>
+    <div id="container-confirma-senha" class="input-group" style="display: none;">
+        <label for="confirma-senha">Confirme a Senha</label>
+        <div class="campo-senha-wrapper">
+            <input type="password" id="confirma-senha" placeholder="••••••••" minlength="6">
+            <button type="button" class="btn-toggle-senha" data-alvo="confirma-senha" title="Mostrar senha">
+                <svg class="icone-olho-aberto" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icone-olho-fechado" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+        </div>
+    </div>
+    <div id="container-forca-senha" class="forca-senha-container" style="display: none;">
+        <div class="forca-senha-barras">
+            <div class="forca-barra" id="forca-barra-1"></div>
+            <div class="forca-barra" id="forca-barra-2"></div>
+            <div class="forca-barra" id="forca-barra-3"></div>
+            <div class="forca-barra" id="forca-barra-4"></div>
+        </div>
+        <span id="forca-senha-texto" class="forca-senha-texto">Muito fraca</span>
+        <div id="forca-senha-dicas" class="forca-senha-dicas"></div>
+    </div>
+    
+    <button type="submit" id="btn-entrar" class="btn-primario">Entrar no Sistema</button>
+    
+    <div class="login-divisor">
+        <hr><span>OU</span><hr>
+    </div>
+    
+    <button type="button" id="btn-google" class="btn-secundario btn-google-login">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 18px;">
+        Entrar com o Google
+    </button>
+</form>
+                <p id="msg-erro" class="erro-login" style="display: none;">Erro ao acessar!</p>
+                <button id="btn-mudar-modo" class="btn-alternar-auth">Não tem conta? Crie uma aqui</button>
+            </div>
+        </div>
+
+        <div id="tela-app" style="display: none;" class="animado">
+            
+            <div id="saudacao-usuario" class="saudacao-usuario">
+                <h2>Olá, <span id="nome-usuario">usuário</span>!</h2>
+                <p id="saudacao-subtitulo">Veja como estão suas finanças hoje.</p>
+            </div>
+
+            <div class="dashboard-grid">
+                
+                <div class="coluna-resumo">
+                    <div class="card card-espacado">
+                        <div class="resumo-cabecalho">
+                            <h3>Resumo Financeiro</h3>
+                            <select id="filtro-mes">
+                                <option value="Todos">Carregando...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="grid-resumo">
+                            <div class="card-resumo card-receita">
+                                <p class="rotulo-resumo">⬆️ Receitas</p>
+                                <p id="valor-receitas-display" class="valor-resumo valor-receita">R$ 0,00</p>
+                            </div>
+                            
+                            <div class="card-resumo card-despesa">
+                                <p class="rotulo-resumo">⬇️ Despesas</p>
+                                <p id="valor-despesas-display" class="valor-resumo valor-despesa">R$ 0,00</p>
+                            </div>
+
+                            <div class="card-resumo card-saldo">
+                                <p class="rotulo-resumo">Saldo Líquido</p>
+                                <p id="valor-saldo-display" class="valor-resumo valor-saldo">R$ 0,00</p>
+                            </div>
+
+                            <div class="card-resumo card-progresso">
+                                <p class="rotulo-resumo">📉 Uso da Receita</p>
+                                <div class="barra-progresso-container">
+                                    <div class="barra-progresso-fundo">
+                                        <div id="barra-progresso-preenchimento" class="barra-progresso-preenchimento" style="width: 0%;"></div>
+                                    </div>
+                                    <span id="texto-progresso" class="texto-progresso">0%</span>
+                                </div>
+                                <p id="legenda-progresso" class="legenda-progresso">Sem receitas registradas</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="titulo-secao">Distribuição de Gastos</h3>
+                        <div class="painel-grafico">
+                            <canvas id="graficoPizza"></canvas>
+                        </div>
+                        <div id="dashboard-categorias" class="dashboard-categorias"></div>
+                    </div>
+                </div>
+
+                <div class="coluna-dados">
+                    <div class="card card-espacado">
+                        <form id="form-despesa" autocomplete="off">
+                            <div class="form-despesa-grid">
+                                <div class="input-group">
+                                    <label for="tipo-lancamento">Tipo</label>
+                                    <select id="tipo-lancamento" class="tipo-lancamento-select" required>
+                                        <option value="saida" selected>🔴 Despesa</option>
+                                        <option value="entrada">🟢 Receita</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label for="descricao">Descrição</label>
+                                    <input type="text" id="descricao" placeholder="Ex: Salário, Aluguel..." required maxlength="100">
+                                </div>
+                                <div class="input-group">
+                                    <label for="categoria">Categoria</label>
+                                    <select id="categoria" required>
+                                        <option value="" disabled selected>Escolha...</option>
+                                        <option value="Contas Fixas">Contas Fixas</option>
+                                        <option value="Alimentação">Alimentação</option>
+                                        <option value="Transporte">Transporte</option>
+                                        <option value="Educação">Educação</option>
+                                        <option value="Saúde">Saúde</option>
+                                        <option value="Outros">Outros</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label for="valor">Valor (R$)</label>
+                                    <input type="number" id="valor" placeholder="0,00" step="0.01" min="0.01" max="9999999.99" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="data-lancamento">Data</label>
+                                    <input type="date" id="data-lancamento">
+                                </div>
+                            </div>
+                            <div class="form-acoes">
+                                <button type="submit" id="btn-submit" class="btn-primario">➕ Adicionar Lançamento</button>
+                                <button type="button" id="btn-cancelar-edicao" class="btn-cancelar">❌ Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <div class="cabecalho-tabela">
+                            <h3>Histórico de Lançamentos</h3>
+                        </div>
+                        <div class="barra-busca-container">
+                            <input type="text" id="input-busca" placeholder="🔍 Buscar lançamentos..." class="input-busca">
+                        </div>
+                        <div class="tabela-responsiva">
+                            <table id="tabela-despesas">
+                                <thead>
+                                    <tr>
+                                        <th>Ações</th>
+                                        <th>Descrição</th>
+                                        <th>Categoria</th>
+                                        <th>Data</th>
+                                        <th class="coluna-valor">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-corpo"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-confirmar" class="modal-overlay" style="display: none;">
+        <div class="modal-caixa">
+            <div class="modal-icone">⚠️</div>
+            <h3 id="modal-titulo">Confirmar ação</h3>
+            <p id="modal-mensagem">Tem certeza que deseja apagar este lançamento?</p>
+            <div class="modal-botoes">
+                <button id="modal-cancelar" class="btn-secundario">Cancelar</button>
+                <button id="modal-confirmar-btn" class="btn-primario btn-perigo">Apagar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <button id="btn-abrir-chat" class="btn-ia-flutuante" style="display: none;">
+        <span class="btn-ia-icone">✨</span>
+        <span class="btn-ia-texto">Assistente IA</span>
+    </button>
+
+    <div id="container-chat-ia" class="chat-ia-oculto">
+        <div class="chat-cabecalho">
+            <div class="chat-cabecalho-info">
+                <div class="chat-avatar">🤖</div>
+                <div>
+                    <h3>Assistente Financeiro</h3>
+                    <span class="chat-status">● Online</span>
+                </div>
+            </div>
+            <button id="btn-fechar-chat" title="Fechar chat">✕</button>
+        </div>
+        <div id="area-mensagens" class="chat-mensagens">
+            <div class="mensagem ia">
+                <div class="mensagem-conteudo">Olá! Sou sua IA financeira. Tenho acesso aos seus dados — pergunte sobre seus gastos, saldo ou peça dicas! 💰</div>
+            </div>
+        </div>
+        <div class="chat-input-grupo">
+            <input type="text" id="input-mensagem-ia" placeholder="Pergunte algo...">
+            <button id="btn-enviar-ia" title="Enviar mensagem">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

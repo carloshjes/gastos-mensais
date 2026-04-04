@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function dadosValidos() {
+      let dados = request.resource.data;
+      
+      let temCampos = dados.keys().hasAll(
+        ['tipo', 'descricao', 'categoria', 'valor', 'userId', 'pago', 'dataCriacao']
+      );
+      
+      let camposPermitidos = dados.keys().hasOnly(
+        ['tipo', 'descricao', 'categoria', 'valor', 'userId', 'pago', 'dataCriacao']
+      );
+      
+      let tiposCertos = 
+        dados.tipo is string &&
+        dados.descricao is string &&
+        dados.categoria is string &&
+        dados.valor is number &&
+        dados.userId is string &&
+        dados.pago is bool;
+        
+      let dataValida = dados.dataCriacao is timestamp;
+        
+      let tipoValido = dados.tipo in ['entrada', 'saida'];
+      
+      // ATUALIZADO: inclui categorias de receita
+      let categoriaValida = dados.categoria in [
+        'Contas Fixas', 'Alimentação', 'Transporte', 
+        'Educação', 'Saúde', 'Outros',
+        'Salário', 'Freelance', 'Investimentos', 'Vendas'
+      ];
+        
+      let descricaoSegura = dados.descricao.size() > 0 
+        && dados.descricao.size() <= 100;
+      
+      let valorSeguro = dados.valor > 0 && dados.valor <= 9999999.99;
+      
+      return temCampos && camposPermitidos && tiposCertos 
+        && tipoValido && categoriaValida 
+        && descricaoSegura && valorSeguro
+        && dataValida;
+    }
+    match /despesas/{despesaId} {
+      allow read, delete: if request.auth != null 
+        && request.auth.uid == resource.data.userId;
+      
+      allow create: if request.auth != null 
+        && request.auth.uid == request.resource.data.userId 
+        && dadosValidos();
+                    
+      allow update: if request.auth != null 
+        && request.auth.uid == request.resource.data.userId 
+        && request.auth.uid == resource.data.userId
+        && dadosValidos();
+    }
+  }
+}
