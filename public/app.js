@@ -1,12 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, where, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-// =============================================
-// App Check — descomente quando tiver a chave
-// reCAPTCHA configurada
-// =============================================
-// import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBO5ZarHI0pbTD2rSU2KOzTLkhEjW3hMbE",
@@ -19,10 +14,14 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// const appCheck = initializeAppCheck(app, {
-//     provider: new ReCaptchaV3Provider('SUA_CHAVE_RECAPTCHA_V3_AQUI'),
-//     isTokenAutoRefreshEnabled: true
-// });
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+}
+
+const appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider('6LddDJ8sAAAAABD3ixWDnvYN93i40ZkpEkED7XMl'),
+    isTokenAutoRefreshEnabled: true
+});
 
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -45,6 +44,10 @@ document.getElementById('btn-tema').addEventListener('click', alternarTema);
 document.getElementById('filtro-mes').addEventListener('change', filtrarEAtualizar);
 document.getElementById('btn-cancelar-edicao').addEventListener('click', cancelarEdicao);
 
+/* =========================================
+   FUNÇÕES UTILITÁRIAS
+   ========================================= */
+
 function mostrarToast(msg, tipo = 'sucesso') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
@@ -64,9 +67,7 @@ function formatarMoeda(v) {
 }
 
 function escaparHTML(t) { 
-    const div = document.createElement('div'); 
-    div.textContent = t; 
-    return div.innerHTML; 
+    return DOMPurify.sanitize(t);
 }
 
 function infoCategoria(c) {
@@ -86,15 +87,9 @@ function infoCategoria(c) {
 }
 
 /* =========================================
-   [FIX #7] CATEGORIAS DINÂMICAS
-   Altera as opções do dropdown de categoria
-   conforme o tipo de lançamento selecionado.
-   
-   ⚠️ IMPORTANTE: Se usar categorias de receita,
-   atualize a regra 'categoriaValida' no
-   Firestore para incluir:
-   'Salário', 'Freelance', 'Investimentos', 'Vendas'
+   CONTROLO DE CATEGORIAS E DATAS
    ========================================= */
+
 const categoriasDespesa = ['Contas Fixas', 'Alimentação', 'Transporte', 'Educação', 'Saúde', 'Outros'];
 const categoriasReceita = ['Salário', 'Freelance', 'Investimentos', 'Vendas', 'Outros'];
 
@@ -112,7 +107,6 @@ function atualizarCategoriasSelect() {
         select.appendChild(opt);
     });
     
-    // Mantém a seleção anterior se a categoria existir no novo tipo
     if (cats.includes(valorAtual)) {
         select.value = valorAtual;
     }
@@ -120,12 +114,6 @@ function atualizarCategoriasSelect() {
 
 document.getElementById('tipo-lancamento').addEventListener('change', atualizarCategoriasSelect);
 
-/* =========================================
-   [FIX #13] COMPONENTE CUSTOMIZADO DE DATA
-   Cria um wrapper visual ao redor do input
-   nativo. O input fica invisível (overlay)
-   e um texto formatado + ícone aparecem.
-   ========================================= */
 function formatarDataDisplay(valorISO) {
     if (!valorISO) return 'Selecionar data';
     const [ano, mes, dia] = valorISO.split('-');
@@ -137,16 +125,13 @@ function inicializarDatePicker() {
     const input = document.getElementById('data-lancamento');
     const parent = input.parentElement;
 
-    // Cria o container customizado
     const wrapper = document.createElement('div');
     wrapper.className = 'data-picker-custom';
 
-    // Texto visível com a data formatada
     const texto = document.createElement('span');
     texto.className = 'data-picker-texto';
     texto.id = 'data-picker-display';
 
-    // Seta dropdown (chevron) para indicar interatividade
     const seta = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     seta.setAttribute('class', 'data-picker-seta');
     seta.setAttribute('viewBox', '0 0 24 24');
@@ -157,13 +142,11 @@ function inicializarDatePicker() {
     seta.setAttribute('stroke-linejoin', 'round');
     seta.innerHTML = '<polyline points="6 9 12 15 18 9"/>';
 
-    // Move o input nativo para dentro do wrapper
     parent.appendChild(wrapper);
     wrapper.appendChild(texto);
     wrapper.appendChild(seta);
     wrapper.appendChild(input);
 
-    // Atualiza o texto ao mudar a data
     input.addEventListener('change', () => {
         texto.textContent = formatarDataDisplay(input.value);
     });
@@ -177,7 +160,6 @@ function definirDataPadrao() {
     const input = document.getElementById('data-lancamento');
     input.value = `${yyyy}-${mm}-${dd}`;
     
-    // Atualiza o texto visual se o display existir
     const display = document.getElementById('data-picker-display');
     if (display) {
         display.textContent = formatarDataDisplay(input.value);
@@ -187,12 +169,6 @@ function definirDataPadrao() {
 inicializarDatePicker();
 definirDataPadrao();
 
-/* =========================================
-   [CORREÇÃO #5] obterMesAno agora recebe o
-   item inteiro e prioriza dataCriacao (que
-   agora armazena a data escolhida pelo
-   usuário quando informada).
-   ========================================= */
 function obterMesAno(dataInput) {
     if (!dataInput) return "";
     const d = dataInput.toDate ? dataInput.toDate() : new Date(dataInput);
@@ -209,14 +185,14 @@ function cancelarEdicao() {
     
     document.getElementById('btn-cancelar-edicao').style.display = 'none';
     
-    // Restaura categorias de despesa (padrão) e data de hoje
     atualizarCategoriasSelect();
     definirDataPadrao();
 }
 
 /* =========================================
-   MODAL DE CONFIRMAÇÃO PERSONALIZADO
+   MODAL E INTERFACE
    ========================================= */
+
 let resolverModal = null;
 
 function abrirModal(titulo, mensagem, textoBotao = 'Confirmar') {
@@ -246,18 +222,12 @@ document.getElementById('modal-confirmar').addEventListener('click', (e) => {
     }
 });
 
-/* =========================================
-   LISTENER DE BUSCA (DEBOUNCED)
-   ========================================= */
 let timerBusca = null;
 document.getElementById('input-busca').addEventListener('input', () => {
     clearTimeout(timerBusca);
     timerBusca = setTimeout(() => filtrarEAtualizar(), 250);
 });
 
-/* =========================================
-   ANIMAÇÃO DE CONTAGEM NOS VALORES
-   ========================================= */
 function animarValor(elemento, valorFinal, duracao = 600) {
     const textoAtual = elemento.innerText.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.');
     const valorInicial = parseFloat(textoAtual) || 0;
@@ -285,10 +255,9 @@ function animarValor(elemento, valorFinal, duracao = 600) {
 }
 
 /* =========================================
-   [CORREÇÃO #12] Alterna modo de cadastro e
-   marca/desmarca 'required' no campo de
-   confirmação de senha dinamicamente.
+   AUTENTICAÇÃO E LOGIN
    ========================================= */
+
 function alternarModoAuth() {
     modoCadastro = !modoCadastro;
     document.getElementById('msg-erro').style.display = 'none';
@@ -308,9 +277,6 @@ function alternarModoAuth() {
     }
 }
 
-/* =========================================
-   VERIFICADOR DE FORÇA DA SENHA
-   ========================================= */
 document.getElementById('senha-login').addEventListener('input', (e) => {
     if (modoCadastro) {
         verificarForcaSenha(e.target.value);
@@ -396,6 +362,7 @@ onAuthStateChanged(auth, (user) => {
             `${saudacao}, <span id="nome-usuario">${escaparHTML(nome)}</span>!`;
         
         carregarBancoDeDados(user.uid); 
+        resetarTimer();
     } else {
         usuarioLogado = null;
         document.getElementById('tela-login').style.display = 'flex';
@@ -404,7 +371,6 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('btn-abrir-chat').style.display = 'none';
         document.getElementById('container-chat-ia').classList.add('chat-ia-oculto');
         
-        // [FIX #16] Limpa mensagens do chat e histórico ao fazer logout
         document.getElementById('area-mensagens').innerHTML = `
             <div class="mensagem ia">
                 <div class="mensagem-conteudo">Olá! Sou sua IA financeira. Tenho acesso aos seus dados — pergunte sobre seus gastos, saldo ou peça dicas! 💰</div>
@@ -412,6 +378,7 @@ onAuthStateChanged(auth, (user) => {
         historicoChat = [];
 
         if (pararDeEscutarBanco) pararDeEscutarBanco(); 
+        clearTimeout(timerInatividade);
     }
 });
 
@@ -468,18 +435,10 @@ document.getElementById('btn-google').addEventListener('click', async () => {
 });
 
 /* =========================================
-   [CORREÇÃO #13] Query agora usa orderBy
-   para que o Firestore retorne os dados já
-   ordenados. O sort client-side permanece
-   como fallback seguro.
-   
-   IMPORTANTE: Ao rodar pela primeira vez,
-   o Firestore vai pedir para criar um índice
-   composto (userId + dataCriacao desc). O
-   link aparece no console do navegador.
+   OPERAÇÕES NO FIRESTORE
    ========================================= */
+
 function carregarBancoDeDados(uid) {
-    // Sempre remove o listener anterior para evitar duplicação
     if (pararDeEscutarBanco) {
         pararDeEscutarBanco();
         pararDeEscutarBanco = null;
@@ -500,7 +459,6 @@ function carregarBancoDeDados(uid) {
     }, (error) => {
         console.error("Erro no snapshot (pode ser necessário criar o índice composto):", error);
         
-        // Remove o listener que falhou antes de criar o novo
         if (pararDeEscutarBanco) {
             pararDeEscutarBanco();
             pararDeEscutarBanco = null;
@@ -520,20 +478,6 @@ function carregarBancoDeDados(uid) {
     });
 }
 
-/* =========================================
-   [CORREÇÃO #5 e #7] O campo 'dataPersonalizada'
-   foi removido. Agora dataCriacao recebe
-   diretamente a data escolhida pelo usuário
-   via Timestamp.fromDate() ou serverTimestamp()
-   quando nenhuma data é informada. Isso
-   garante compatibilidade total com as rules
-   do Firestore (que só permitem os campos
-   listados em camposPermitidos).
-   
-   [CORREÇÃO #6] Guarda contra itemOriginal
-   nulo na edição (caso o registro tenha sido
-   apagado em outra aba/sessão).
-   ========================================= */
 document.getElementById('form-despesa').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btn-submit');
@@ -542,7 +486,6 @@ document.getElementById('form-despesa').addEventListener('submit', async (e) => 
     const dataInput = document.getElementById('data-lancamento').value;
     const valorInput = parseFloat(document.getElementById('valor').value);
 
-    // [FIX #14] Validação robusta de valor positivo
     if (isNaN(valorInput) || valorInput <= 0) {
         mostrarToast("Informe um valor válido e positivo.", "erro");
         btn.disabled = false;
@@ -557,8 +500,6 @@ document.getElementById('form-despesa').addEventListener('submit', async (e) => 
         userId: usuarioLogado.uid
     };
 
-    // [FIX #10] Sempre define dataCriacao como Timestamp local
-    // para evitar flash de data nula com serverTimestamp()
     if (dataInput) {
         const [ano, mes, dia] = dataInput.split('-');
         dados.dataCriacao = Timestamp.fromDate(new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia), 12, 0, 0));
@@ -579,7 +520,6 @@ document.getElementById('form-despesa').addEventListener('submit', async (e) => 
             
             dados.pago = itemOriginal.pago;
             
-            // Na edição, se o campo de data estiver vazio, mantém a data original
             if (!dataInput && itemOriginal.dataCriacao) {
                 dados.dataCriacao = itemOriginal.dataCriacao;
             }
@@ -592,7 +532,6 @@ document.getElementById('form-despesa').addEventListener('submit', async (e) => 
             await addDoc(despesasRef, dados);
             mostrarToast("Registro salvo!");
             e.target.reset();
-            // Redefine a data padrão após reset
             definirDataPadrao();
             atualizarCategoriasSelect();
         }
@@ -644,7 +583,7 @@ document.getElementById('tabela-corpo').addEventListener('click', async (e) => {
             idEdicao = id;
             
             document.getElementById('tipo-lancamento').value = item.tipo || 'saida';
-            atualizarCategoriasSelect(); // Atualiza opções antes de definir a categoria
+            atualizarCategoriasSelect();
             document.getElementById('descricao').value = item.descricao;
             document.getElementById('categoria').value = item.categoria;
             document.getElementById('valor').value = item.valor;
@@ -677,12 +616,6 @@ document.getElementById('tabela-corpo').addEventListener('click', async (e) => {
     }
 });
 
-/* =========================================
-   [CORREÇÃO #14] Ao reconstruir as opções de
-   meses, verifica se o valor selecionado
-   anteriormente ainda existe na lista. Se não,
-   faz fallback para o mês atual ou "Todos".
-   ========================================= */
 function atualizarOpcoesDeMeses(dados) {
     const select = document.getElementById('filtro-mes');
     const meses = new Set();
@@ -736,12 +669,9 @@ function filtrarEAtualizar() {
 }
 
 /* =========================================
-   [CORREÇÃO #5] A exibição de data na tabela
-   agora usa apenas dataCriacao (que contém a
-   data correta, seja escolhida pelo usuário
-   ou gerada pelo servidor). O campo
-   dataPersonalizada foi completamente removido.
+   ATUALIZAÇÃO DE INTERFACE E GRÁFICOS
    ========================================= */
+
 function atualizarInterface(dados) {
     const tabela = document.getElementById('tabela-corpo');
     const dashCat = document.getElementById('dashboard-categorias');
@@ -981,12 +911,6 @@ if (localStorage.getItem('temaFinanceiro') === 'light') {
     document.getElementById('btn-tema').innerHTML = '🌙 Modo Escuro';
 }
 
-/* =========================================
-   [CORREÇÃO #9] Efeito ripple agora usa
-   event delegation no document.body, assim
-   funciona em botões criados dinamicamente
-   (tabela, modais, etc).
-   ========================================= */
 document.body.addEventListener('click', function(e) {
     const btn = e.target.closest('button');
     if (!btn) return;
@@ -1060,16 +984,8 @@ function mostrarDigitandoIA() {
     return idDigitando;
 }
 
-/* =========================================
-   [CORREÇÃO #8] Regex de formatação markdown
-   corrigida. Bold (**) é processado primeiro
-   e substituído por placeholders temporários
-   para que o regex de itálico (*) não entre
-   em conflito com os asteriscos do bold.
-   ========================================= */
 function formatarTextoIA(texto) {
     let html = escaparHTML(texto);
-    // Bold (**texto**) é processado primeiro com placeholders
     html = html.replace(/\*\*(.*?)\*\*/g, '\u0000BOLD_OPEN\u0000$1\u0000BOLD_CLOSE\u0000');
     html = html.replace(/\*([^*]+?)\*/g, '<em>$1</em>');
     html = html.replace(/\u0000BOLD_OPEN\u0000/g, '<strong>');
@@ -1122,18 +1038,8 @@ CONTEXTO FINANCEIRO DO USUÁRIO (período: ${periodo}):
 `.trim();
 }
 
-/* =========================================
-   INTEGRAÇÃO COM A INTELIGÊNCIA ARTIFICIAL
-   
-   ⚠️ IMPORTANTE SOBRE SEGURANÇA:
-   A chave da API está exposta no frontend.
-   Para uso em produção, migre para uma
-   Firebase Cloud Function.
-   ========================================= */
-
-// ⚠️ MOVER PARA CLOUD FUNCTION EM PRODUÇÃO!
 const COHERE_API_KEY = "SUA_COHERE_API_KEY";
-const USA_CLOUD_FUNCTION = false; // Mude para true após deploy da Cloud Function
+const USA_CLOUD_FUNCTION = false; 
 const URL_CLOUD_FUNCTION = 'https://us-central1-monitoramento-de-gastos.cloudfunctions.net/chatIA';
 
 let iaOcupada = false;
@@ -1142,7 +1048,6 @@ const MAX_HISTORICO = 20;
 
 async function chamarAPIIA(mensagens) {
     if (USA_CLOUD_FUNCTION) {
-        // Modo seguro: chama a Cloud Function (chave no backend)
         const resposta = await fetch(URL_CLOUD_FUNCTION, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1151,7 +1056,6 @@ async function chamarAPIIA(mensagens) {
         if (!resposta.ok) throw new Error(`Erro HTTP ${resposta.status}`);
         return await resposta.json();
     } else {
-        // Modo direto: chama a Cohere diretamente (NÃO recomendado em produção)
         const resposta = await fetch('https://api.cohere.com/v2/chat', {
             method: 'POST',
             headers: {
@@ -1186,10 +1090,8 @@ async function enviarMensagemParaIA(mensagemUsuario) {
     try {
         const contexto = gerarContextoFinanceiro();
 
-        // [FIX #6] Adiciona a mensagem do usuário ao histórico
         historicoChat.push({ role: 'user', content: mensagemUsuario });
 
-        // Limita o tamanho do histórico para evitar tokens excessivos
         if (historicoChat.length > MAX_HISTORICO) {
             historicoChat = historicoChat.slice(-MAX_HISTORICO);
         }
@@ -1210,7 +1112,6 @@ async function enviarMensagemParaIA(mensagemUsuario) {
         if (dados.message && dados.message.content && dados.message.content.length > 0) {
             const textoResposta = dados.message.content[0].text;
             adicionarMensagemNaTela(textoResposta, 'ia');
-            // [FIX #6] Salva a resposta da IA no histórico
             historicoChat.push({ role: 'assistant', content: textoResposta });
         } else {
             adicionarMensagemNaTela('Desculpe, não consegui formular uma resposta.', 'ia');
@@ -1224,7 +1125,6 @@ async function enviarMensagemParaIA(mensagemUsuario) {
         
         adicionarMensagemNaTela('Ops! Tive um problema para me conectar. Verifique sua conexão.', 'ia');
         
-        // Remove a última mensagem do usuário do histórico se houve erro
         if (historicoChat.length > 0 && historicoChat[historicoChat.length - 1].role === 'user') {
             historicoChat.pop();
         }
@@ -1250,8 +1150,9 @@ inputMensagemIa.addEventListener('keypress', (e) => {
 });
 
 /* =========================================
-   BOTÃO DE EXIBIR/OCULTAR SENHA
+   UI SECUNDÁRIA (SENHA E OFFLINE)
    ========================================= */
+
 document.querySelectorAll('.btn-toggle-senha').forEach(btn => {
     btn.addEventListener('click', () => {
         const input = document.getElementById(btn.dataset.alvo);
@@ -1270,9 +1171,6 @@ document.querySelectorAll('.btn-toggle-senha').forEach(btn => {
     });
 });
 
-/* =========================================
-   DETECÇÃO DE MODO OFFLINE
-   ========================================= */
 const bannerOffline = document.getElementById('banner-offline');
 
 function atualizarStatusConexao() {
@@ -1298,11 +1196,9 @@ window.addEventListener('offline', () => {
 atualizarStatusConexao();
 
 /* =========================================
-   CUSTOM SELECT — DESKTOP ONLY
-   Cria dropdowns estilizados que substituem
-   os nativos somente em telas >= 800px.
-   No mobile o nativo é mantido (já é elegante).
+   SELECT CUSTOMIZADO PARA DESKTOP
    ========================================= */
+
 function ehDesktop() {
     return window.matchMedia('(min-width: 800px)').matches;
 }
@@ -1314,7 +1210,6 @@ function criarCustomSelect(selectEl) {
     const wrapper = document.createElement('div');
     wrapper.className = 'custom-select-wrapper';
 
-    // Trigger (botão visível)
     const trigger = document.createElement('div');
     trigger.className = 'custom-select-trigger';
     trigger.setAttribute('tabindex', '0');
@@ -1335,21 +1230,18 @@ function criarCustomSelect(selectEl) {
     trigger.appendChild(labelSpan);
     trigger.appendChild(arrowSvg);
 
-    // Dropdown (painel de opções)
     const dropdown = document.createElement('div');
     dropdown.className = 'custom-select-dropdown';
 
-    // Insere no DOM
     selectEl.parentNode.insertBefore(wrapper, selectEl);
     wrapper.appendChild(trigger);
     wrapper.appendChild(dropdown);
     wrapper.appendChild(selectEl);
 
-    // --- Funções internas ---
     function sincronizarOpcoes() {
         dropdown.innerHTML = '';
         Array.from(selectEl.options).forEach(opt => {
-            if (opt.disabled && opt.value === '') return; // pula placeholder
+            if (opt.disabled && opt.value === '') return;
             const div = document.createElement('div');
             div.className = 'custom-select-option';
             if (opt.value === selectEl.value) div.classList.add('selecionado');
@@ -1375,7 +1267,6 @@ function criarCustomSelect(selectEl) {
             labelSpan.textContent = optSelecionada.textContent;
             labelSpan.classList.remove('placeholder');
         }
-        // Atualiza marcação de selecionado
         dropdown.querySelectorAll('.custom-select-option').forEach(el => {
             el.classList.toggle('selecionado', el.dataset.valor === selectEl.value);
         });
@@ -1396,7 +1287,6 @@ function criarCustomSelect(selectEl) {
     function toggle(e) {
         e.stopPropagation();
         if (!ehDesktop()) {
-            // No mobile, deixa o select nativo funcionar
             selectEl.style.position = '';
             selectEl.style.opacity = '';
             selectEl.style.pointerEvents = '';
@@ -1406,7 +1296,6 @@ function criarCustomSelect(selectEl) {
         if (dropdown.classList.contains('visivel')) {
             fechar();
         } else {
-            // Fecha outros dropdowns abertos
             document.querySelectorAll('.custom-select-dropdown.visivel').forEach(d => {
                 d.classList.remove('visivel');
             });
@@ -1423,22 +1312,17 @@ function criarCustomSelect(selectEl) {
         if (e.key === 'Escape') fechar();
     });
 
-    // Observa mudanças no select nativo (ex: atualizarCategoriasSelect)
     const observer = new MutationObserver(() => {
         sincronizarOpcoes();
     });
     observer.observe(selectEl, { childList: true, subtree: true, attributes: true });
 
-    // Sincroniza ao mudar o select via JS
     selectEl.addEventListener('change', atualizarLabel);
-
-    // Inicializa
     sincronizarOpcoes();
 
     return { sincronizar: sincronizarOpcoes, fechar };
 }
 
-// Fecha dropdowns ao clicar fora
 document.addEventListener('click', () => {
     document.querySelectorAll('.custom-select-dropdown.visivel').forEach(d => {
         d.classList.remove('visivel');
@@ -1448,6 +1332,29 @@ document.addEventListener('click', () => {
     });
 });
 
-// Aplica nos selects do formulário de lançamentos
 criarCustomSelect(document.getElementById('tipo-lancamento'));
 criarCustomSelect(document.getElementById('categoria'));
+
+/* =========================================
+   MECANISMO DE SEGURANÇA: LOGOUT AUTOMÁTICO
+   ========================================= */
+
+const TEMPO_LIMITE_INATIVIDADE = 600000; 
+let timerInatividade;
+
+function resetarTimer() {
+    if (usuarioLogado) {
+        clearTimeout(timerInatividade);
+        timerInatividade = setTimeout(() => {
+            mostrarToast("Sessão expirada por inatividade. Faça login novamente.", "erro");
+            fazerLogout(); 
+        }, TEMPO_LIMITE_INATIVIDADE);
+    }
+}
+
+window.onload = resetarTimer;
+document.onmousemove = resetarTimer;
+document.onkeypress = resetarTimer;
+document.onclick = resetarTimer;
+document.ontouchstart = resetarTimer;
+document.onscroll = resetarTimer;

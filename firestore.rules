@@ -2,17 +2,21 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // Função principal de validação de dados
     function dadosValidos() {
       let dados = request.resource.data;
       
+      // 1. Exige que todos estes campos existam
       let temCampos = dados.keys().hasAll(
         ['tipo', 'descricao', 'categoria', 'valor', 'userId', 'pago', 'dataCriacao']
       );
       
+      // 2. Bloqueia qualquer campo extra (Proteção contra hackers)
       let camposPermitidos = dados.keys().hasOnly(
         ['tipo', 'descricao', 'categoria', 'valor', 'userId', 'pago', 'dataCriacao']
       );
       
+      // 3. Verifica os tipos de dados
       let tiposCertos = 
         dados.tipo is string &&
         dados.descricao is string &&
@@ -25,16 +29,18 @@ service cloud.firestore {
         
       let tipoValido = dados.tipo in ['entrada', 'saida'];
       
-      // ATUALIZADO: inclui categorias de receita
+      // 4. Aceita apenas as tuas categorias exatas
       let categoriaValida = dados.categoria in [
         'Contas Fixas', 'Alimentação', 'Transporte', 
         'Educação', 'Saúde', 'Outros',
         'Salário', 'Freelance', 'Investimentos', 'Vendas'
       ];
         
+      // 5. Impede textos vazios ou gigantes
       let descricaoSegura = dados.descricao.size() > 0 
         && dados.descricao.size() <= 100;
       
+      // 6. Impede valores negativos ou absurdos
       let valorSeguro = dados.valor > 0 && dados.valor <= 9999999.99;
       
       return temCampos && camposPermitidos && tiposCertos 
@@ -42,18 +48,25 @@ service cloud.firestore {
         && descricaoSegura && valorSeguro
         && dataValida;
     }
+
     match /despesas/{despesaId} {
+      // Apenas o dono pode ler e apagar
       allow read, delete: if request.auth != null 
         && request.auth.uid == resource.data.userId;
       
+      // Apenas o dono pode criar e os dados têm de ser válidos
       allow create: if request.auth != null 
         && request.auth.uid == request.resource.data.userId 
         && dadosValidos();
                     
+      // Apenas o dono pode atualizar, e os dados têm de ser válidos.
       allow update: if request.auth != null 
         && request.auth.uid == request.resource.data.userId 
         && request.auth.uid == resource.data.userId
-        && dadosValidos();
+        && dadosValidos()
+        // PROTEÇÃO FINAL: Garante que o usuário nunca transfira a despesa para outro usuário.
+        // A data está liberada para edição!
+        && request.resource.data.userId == resource.data.userId;
     }
   }
 }

@@ -6,11 +6,14 @@
     <meta name="theme-color" content="#0f172a">
     <title>Monitoramento de Gastos</title>
     
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com https://www.google.com https://www.recaptcha.net; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.cohere.com https://www.google.com https://www.recaptcha.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://www.google.com https://www.recaptcha.net https://*.firebaseapp.com; img-src 'self' data: https://www.gstatic.com;">
+    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 </head>
 <body>
 
@@ -75,52 +78,52 @@
                 <h2 id="titulo-login">Acesso Restrito</h2>
                 <p class="login-subtitulo">Gerencie suas finanças de forma inteligente</p>
                 <form id="form-login">
-    <div class="input-group">
-        <label for="email-login">E-mail</label>
-        <input type="email" id="email-login" placeholder="seu@email.com" required>
-    </div>
-    <div class="input-group">
-        <label for="senha-login">Senha</label>
-        <div class="campo-senha-wrapper">
-            <input type="password" id="senha-login" placeholder="••••••••" required minlength="6">
-            <button type="button" class="btn-toggle-senha" data-alvo="senha-login" title="Mostrar senha">
-                <svg class="icone-olho-aberto" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                <svg class="icone-olho-fechado" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-            </button>
-        </div>
-    </div>
-    <div id="container-confirma-senha" class="input-group" style="display: none;">
-        <label for="confirma-senha">Confirme a Senha</label>
-        <div class="campo-senha-wrapper">
-            <input type="password" id="confirma-senha" placeholder="••••••••" minlength="6">
-            <button type="button" class="btn-toggle-senha" data-alvo="confirma-senha" title="Mostrar senha">
-                <svg class="icone-olho-aberto" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                <svg class="icone-olho-fechado" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-            </button>
-        </div>
-    </div>
-    <div id="container-forca-senha" class="forca-senha-container" style="display: none;">
-        <div class="forca-senha-barras">
-            <div class="forca-barra" id="forca-barra-1"></div>
-            <div class="forca-barra" id="forca-barra-2"></div>
-            <div class="forca-barra" id="forca-barra-3"></div>
-            <div class="forca-barra" id="forca-barra-4"></div>
-        </div>
-        <span id="forca-senha-texto" class="forca-senha-texto">Muito fraca</span>
-        <div id="forca-senha-dicas" class="forca-senha-dicas"></div>
-    </div>
-    
-    <button type="submit" id="btn-entrar" class="btn-primario">Entrar no Sistema</button>
-    
-    <div class="login-divisor">
-        <hr><span>OU</span><hr>
-    </div>
-    
-    <button type="button" id="btn-google" class="btn-secundario btn-google-login">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 18px;">
-        Entrar com o Google
-    </button>
-</form>
+                    <div class="input-group">
+                        <label for="email-login">E-mail</label>
+                        <input type="email" id="email-login" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="senha-login">Senha</label>
+                        <div class="campo-senha-wrapper">
+                            <input type="password" id="senha-login" placeholder="••••••••" required minlength="6">
+                            <button type="button" class="btn-toggle-senha" data-alvo="senha-login" title="Mostrar senha">
+                                <svg class="icone-olho-aberto" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="icone-olho-fechado" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="container-confirma-senha" class="input-group" style="display: none;">
+                        <label for="confirma-senha">Confirme a Senha</label>
+                        <div class="campo-senha-wrapper">
+                            <input type="password" id="confirma-senha" placeholder="••••••••" minlength="6">
+                            <button type="button" class="btn-toggle-senha" data-alvo="confirma-senha" title="Mostrar senha">
+                                <svg class="icone-olho-aberto" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="icone-olho-fechado" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="container-forca-senha" class="forca-senha-container" style="display: none;">
+                        <div class="forca-senha-barras">
+                            <div class="forca-barra" id="forca-barra-1"></div>
+                            <div class="forca-barra" id="forca-barra-2"></div>
+                            <div class="forca-barra" id="forca-barra-3"></div>
+                            <div class="forca-barra" id="forca-barra-4"></div>
+                        </div>
+                        <span id="forca-senha-texto" class="forca-senha-texto">Muito fraca</span>
+                        <div id="forca-senha-dicas" class="forca-senha-dicas"></div>
+                    </div>
+                    
+                    <button type="submit" id="btn-entrar" class="btn-primario">Entrar no Sistema</button>
+                    
+                    <div class="login-divisor">
+                        <hr><span>OU</span><hr>
+                    </div>
+                    
+                    <button type="button" id="btn-google" class="btn-secundario btn-google-login">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 18px;">
+                        Entrar com o Google
+                    </button>
+                </form>
                 <p id="msg-erro" class="erro-login" style="display: none;">Erro ao acessar!</p>
                 <button id="btn-mudar-modo" class="btn-alternar-auth">Não tem conta? Crie uma aqui</button>
             </div>
