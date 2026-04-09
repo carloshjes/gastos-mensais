@@ -66,8 +66,8 @@ function formatarMoeda(v) {
     return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); 
 }
 
-function escaparHTML(t) { 
-    return DOMPurify.sanitize(t);
+function escaparHTML(t) {
+    return DOMPurify.sanitize(String(t), { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
 }
 
 function infoCategoria(c) {
@@ -734,9 +734,9 @@ function atualizarInterface(dados) {
 
         tr.innerHTML = `
             <td data-label="Ações"><div class="acoes-container">
-                <button class="btn-status ${item.pago ? 'status-pago' : 'status-pendente'}" data-id="${item.id}">${item.pago ? '✅' : '⏳'}</button>
-                <button class="btn-editar" data-id="${item.id}">✏️</button>
-                <button class="btn-excluir" data-id="${item.id}">🗑️</button>
+                <button class="btn-status ${item.pago ? 'status-pago' : 'status-pendente'}" data-id="${escaparHTML(item.id)}">${item.pago ? '✅' : '⏳'}</button>
+                <button class="btn-editar" data-id="${escaparHTML(item.id)}">✏️</button>
+                <button class="btn-excluir" data-id="${escaparHTML(item.id)}">🗑️</button>
             </div></td>
             <td data-label="Descrição"><strong>${escaparHTML(item.descricao)}</strong></td>
             <td data-label="Categoria"><span class="tag ${info.classe}">${tipo === 'entrada' ? '💰 Receita' : info.icone + ' ' + escaparHTML(item.categoria)}</span></td>
