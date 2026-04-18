@@ -47,10 +47,10 @@
 }}}%%
 flowchart LR
     U([Usuário]) --> B[Browser]
-    B -->|login|  FA[Firebase Auth]
-    B -->|CRUD|   FS[(Firestore)]
-    B -->|chat|   IA{{IA}}
-    IA -->|demo|  D[Demo]
+    B -->|login| FA[Firebase Auth]
+    B -->|CRUD| FS[(Firestore)]
+    B -->|chat| IA{{IA}}
+    IA -->|demo| D[Demo]
     IA -->|direto| CO[Cohere]
     IA -->|proxy| CF[Cloud Fn.] --> CO
     FS -. regras .- R[.rules]
