@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="docs/chart.svg" alt="" width="140" />
+<img src="docs/chart.svg" alt="" width="130" />
 
-# Gastos Mensais
+<img src="docs/title.svg" alt="Gastos Mensais" width="280" />
 
 <a href="https://monitoramento-de-gastos.web.app/">
   <img src="https://readme-typing-svg.demolab.com?font=Space+Mono&weight=700&size=19&pause=1200&color=7C3AED&center=true&vCenter=true&width=720&lines=Monitoramento+de+finan%C3%A7as+pessoais;Dashboard%2C+categorias+e+assistente+com+IA;Firebase+%2B+Cohere+%2B+UI+refinada" alt="Tagline" />
@@ -40,40 +40,20 @@
 
 ```mermaid
 %%{init: {'theme':'base', 'themeVariables': {
-  'fontFamily':'Plus Jakarta Sans, sans-serif',
   'primaryColor':'#1c1c2e',
   'primaryTextColor':'#f0f0f5',
   'primaryBorderColor':'#7c3aed',
-  'lineColor':'#a78bfa',
-  'secondaryColor':'#13131f',
-  'tertiaryColor':'#0a0a14'
+  'lineColor':'#a78bfa'
 }}}%%
-flowchart TD
+flowchart LR
     U([Usuário]) --> B[Browser]
-
-    subgraph auth[Autenticação]
-        FA[Firebase Auth]
-    end
-
-    subgraph db[Banco de Dados]
-        FS[(Firestore)]
-        R[firestore.rules]
-        FS -. regras .- R
-    end
-
-    subgraph ia[Assistente IA]
-        IA{{IA}}
-        D[Mensagem fixa]
-        CO[Cohere API]
-        CF[Cloud Function]
-        IA -->|demo| D
-        IA -->|direto| CO
-        IA -->|proxy| CF --> CO
-    end
-
-    B -->|login| FA
-    B -->|CRUD| FS
-    B -->|chat| IA
+    B -->|login|  FA[Firebase Auth]
+    B -->|CRUD|   FS[(Firestore)]
+    B -->|chat|   IA{{IA}}
+    IA -->|demo|  D[Demo]
+    IA -->|direto| CO[Cohere]
+    IA -->|proxy| CF[Cloud Fn.] --> CO
+    FS -. regras .- R[.rules]
 
     classDef firebase fill:#6d28d9,stroke:#a78bfa,color:#fff
     classDef cohere   fill:#a78bfa,stroke:#7c3aed,color:#0a0a14
