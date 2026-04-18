@@ -48,15 +48,32 @@
   'secondaryColor':'#13131f',
   'tertiaryColor':'#0a0a14'
 }}}%%
-flowchart LR
+flowchart TD
     U([Usuário]) --> B[Browser]
-    B -->|login| FA[Firebase Auth]
-    B -->|CRUD| FS[(Firestore)]
-    B -->|chat| IA{{IA}}
-    IA -- demo --> D[Mensagem fixa]
-    IA -- direto --> CO[Cohere API]
-    IA -- proxy --> CF[Cloud Function] --> CO
-    FS -. rules .- R[firestore.rules]
+
+    subgraph auth[Autenticação]
+        FA[Firebase Auth]
+    end
+
+    subgraph db[Banco de Dados]
+        FS[(Firestore)]
+        R[firestore.rules]
+        FS -. regras .- R
+    end
+
+    subgraph ia[Assistente IA]
+        IA{{IA}}
+        D[Mensagem fixa]
+        CO[Cohere API]
+        CF[Cloud Function]
+        IA -->|demo| D
+        IA -->|direto| CO
+        IA -->|proxy| CF --> CO
+    end
+
+    B -->|login| FA
+    B -->|CRUD| FS
+    B -->|chat| IA
 
     classDef firebase fill:#6d28d9,stroke:#a78bfa,color:#fff
     classDef cohere   fill:#a78bfa,stroke:#7c3aed,color:#0a0a14
