@@ -98,7 +98,7 @@ Coleção `despesas` — um documento por lançamento.
 |---|---|---|
 | UI | HTML5, CSS3, JavaScript (ES modules) | Zero build, deploy trivial, controle total da UX |
 | Autenticação | Firebase Authentication | Login por e-mail/senha e Google sem backend próprio |
-| Banco | Cloud Firestore | Tempo real, regras declarativas, escala sem servidor |
+| Banco | Cloud Firestore | Tempo real, regras declarativas, escalável sem servidor |
 | Hosting | Firebase Hosting | CDN com headers de segurança configurados via `firebase.json` |
 | IA | Cohere Chat API | Respostas em PT-BR, integração HTTP direta, custo previsível |
 
@@ -106,7 +106,7 @@ Coleção `despesas` — um documento por lançamento.
 
 ## Segurança
 
-A camada de segurança foi desenhada em três frentes, não apenas "tem login".
+A camada de segurança foi estruturada em três frentes, não apenas "tem login".
 
 **Headers HTTP** — definidos em `firebase.json`
 - `Content-Security-Policy` restrito a origens conhecidas (Firebase, Cohere, reCAPTCHA).
