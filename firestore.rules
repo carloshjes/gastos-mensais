@@ -30,15 +30,20 @@ service cloud.firestore {
       let tipoValido = dados.tipo in ['entrada', 'saida'];
       
       // 4. Aceita apenas as tuas categorias exatas
-      let categoriaValida = dados.categoria in [
-        'Contas Fixas', 'Alimentação', 'Transporte', 
-        'Educação', 'Saúde', 'Outros',
-        'Salário', 'Freelance', 'Investimentos', 'Vendas'
-      ];
+      let categoriaValida = (
+        (dados.tipo == 'saida' && dados.categoria in [
+          'Contas Fixas', 'Alimentação', 'Transporte',
+          'Educação', 'Saúde', 'Outros'
+        ]) ||
+        (dados.tipo == 'entrada' && dados.categoria in [
+          'Salário', 'Freelance', 'Investimentos', 'Vendas', 'Outros'
+        ])
+      );
         
       // 5. Impede textos vazios ou gigantes
-      let descricaoSegura = dados.descricao.size() > 0 
-        && dados.descricao.size() <= 100;
+      let descricaoSegura = dados.descricao.size() > 0
+        && dados.descricao.size() <= 100
+        && dados.descricao.matches('.*\\S.*');
       
       // 6. Impede valores negativos ou absurdos
       let valorSeguro = dados.valor > 0 && dados.valor <= 9999999.99;

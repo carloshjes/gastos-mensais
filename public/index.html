@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#0a0a14">
     <title>Monitoramento de Gastos</title>
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com https://www.google.com https://www.recaptcha.net; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.cohere.com https://www.google.com https://www.recaptcha.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://www.google.com https://www.recaptcha.net https://*.firebaseapp.com; img-src 'self' data: https://www.gstatic.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com https://www.google.com https://www.recaptcha.net; connect-src 'self' https://*.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://accounts.google.com https://*.firebaseio.com wss://*.firebaseio.com https://api.cohere.com https://us-central1-monitoramento-de-gastos.cloudfunctions.net https://www.google.com https://www.recaptcha.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src 'self' https://monitoramento-de-gastos.firebaseapp.com https://accounts.google.com https://apis.google.com https://www.google.com https://www.recaptcha.net https://*.firebaseapp.com; img-src 'self' data: https://www.gstatic.com https://*.googleusercontent.com;">
     
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,66 +18,121 @@
 <body>
 
     <div id="banner-offline" class="banner-offline" style="display: none;">
-        <span>⚡ Sem conexão — você está offline. Algumas funções podem não funcionar.</span>
+        <span><svg class="icone" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5"/><path d="M17 17H3s3-2 3-9a4.7 4.7 0 0 1 .3-1.7"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="m2 2 20 20"/></svg> Sem conexão — você está offline. Algumas funções podem não funcionar.</span>
     </div>
 
     <div class="container">
         
         <div class="cabecalho-principal">
             <div class="logo-container">
-                <div class="logo-icone">📊</div>
+                <div class="logo-pulso">
+                    <div class="pulso-anel"></div>
+                    <div class="pulso-anel"></div>
+                    <div class="pulso-anel"></div>
+                    <div class="pulso-nucleo">
+                        <svg class="pulso-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#logoGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <defs>
+                                <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
+                                    <stop class="logo-grad-start" offset="0%" stop-color="#c4b5fd"/>
+                                    <stop class="logo-grad-end" offset="100%" stop-color="#7c3aed"/>
+                                </linearGradient>
+                            </defs>
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                            <polyline points="17 6 23 6 23 12"/>
+                        </svg>
+                    </div>
+                </div>
                 <h1 class="logo-marca">Gastos <span>Mensais</span></h1>
             </div>
             <div class="acoes-topo">
-                <button id="btn-tema" class="btn-acao icon-btn" title="Alternar Tema">
-                    ☀️ Modo Claro
+                <button id="btn-tema" class="btn-tema-icone" title="Alternar Tema (Modo Claro)" aria-label="Alternar tema para modo claro">
+                    <svg class="icone-tema" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
                 </button>
                 <button id="btn-sair-nav" class="btn-acao btn-sair" style="display: none;">
-                    Sair 🚪
+                    Sair <svg class="icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                 </button>
             </div>
         </div>
         
         <div id="tela-login" class="animado">
-            <div class="card-login">
-                <div class="login-icone-container">
-                    <div class="icone-login-barras">
-                        <svg viewBox="0 0 32 32" width="80" height="80">
-                            <rect x="7" y="22" width="4" height="8" rx="1" fill="#00e5ff" opacity="0.7">
-                                <animate attributeName="height" values="8;14;8" dur="2.5s" repeatCount="indefinite"/>
-                                <animate attributeName="y" values="22;16;22" dur="2.5s" repeatCount="indefinite"/>
-                            </rect>
-                            <rect x="14" y="16" width="4" height="14" rx="1" fill="#00e5ff" opacity="0.85">
-                                <animate attributeName="height" values="14;20;14" dur="2.5s" begin="0.2s" repeatCount="indefinite"/>
-                                <animate attributeName="y" values="16;10;16" dur="2.5s" begin="0.2s" repeatCount="indefinite"/>
-                            </rect>
-                            <rect x="21" y="10" width="4" height="20" rx="1" fill="#00e5ff">
-                                <animate attributeName="height" values="20;26;20" dur="2.5s" begin="0.4s" repeatCount="indefinite"/>
-                                <animate attributeName="y" values="10;4;10" dur="2.5s" begin="0.4s" repeatCount="indefinite"/>
-                            </rect>
-                            <circle cx="9" cy="18" r="1.2" fill="#39ff14">
-                                <animate attributeName="cy" values="18;12;18" dur="2.5s" repeatCount="indefinite"/>
-                            </circle>
-                            <circle cx="16" cy="12" r="1.2" fill="#39ff14">
-                                <animate attributeName="cy" values="12;6;12" dur="2.5s" begin="0.2s" repeatCount="indefinite"/>
-                            </circle>
-                            <circle cx="23" cy="6" r="1.2" fill="#39ff14">
-                                <animate attributeName="cy" values="6;0;6" dur="2.5s" begin="0.4s" repeatCount="indefinite"/>
-                            </circle>
-                            <line x1="9" y1="18" x2="16" y2="12" stroke="#39ff14" stroke-width="0.5" opacity="0.4">
-                                <animate attributeName="y1" values="18;12;18" dur="2.5s" repeatCount="indefinite"/>
-                                <animate attributeName="y2" values="12;6;12" dur="2.5s" begin="0.2s" repeatCount="indefinite"/>
-                            </line>
-                            <line x1="16" y1="12" x2="23" y2="6" stroke="#39ff14" stroke-width="0.5" opacity="0.4">
-                                <animate attributeName="y1" values="12;6;12" dur="2.5s" begin="0.2s" repeatCount="indefinite"/>
-                                <animate attributeName="y2" values="6;0;6" dur="2.5s" begin="0.4s" repeatCount="indefinite"/>
-                            </line>
-                        </svg>
+            <div class="login-split">
+
+                <!-- PAINEL ESQUERDO — MARCA -->
+                <div class="login-painel-marca">
+                    <div class="login-marca-top">
+                        <p class="login-support-kicker">Leitura do per&iacute;odo</p>
+                        <!-- Elemento visual: ticker de métricas animadas -->
+                        <div class="login-ticker-wrap">
+                            <div class="login-ticker-scan"></div>
+                            <div class="login-ticker-row">
+                                <span class="ticker-label">RECEITAS</span>
+                                <span class="ticker-valor ticker-verde" id="ticker-receita">R$ 8.400,00</span>
+                            </div>
+                            <div class="login-ticker-sep"></div>
+                            <div class="login-ticker-row">
+                                <span class="ticker-label">DESPESAS</span>
+                                <span class="ticker-valor ticker-vermelho" id="ticker-despesa">R$ 3.250,00</span>
+                            </div>
+                            <div class="login-ticker-sep"></div>
+                            <div class="login-ticker-row">
+                                <span class="ticker-label">SALDO</span>
+                                <span class="ticker-valor ticker-roxo" id="ticker-saldo">R$ 5.150,00</span>
+                            </div>
+                        </div>
+                        <h1 class="login-marca-titulo">Receitas, despesas e saldo no mesmo quadro.</h1>
+                        <p class="login-marca-sub">Controle total das suas finanças pessoais, com clareza e inteligência.</p>
+                    </div>
+
+                    <ul class="login-features">
+                        <li>
+                            <span class="feature-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            Dashboard com resumo financeiro em tempo real
+                        </li>
+                        <li>
+                            <span class="feature-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            Gráficos de gastos por categoria
+                        </li>
+                        <li>
+                            <span class="feature-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                            Assistente financeiro com inteligência artificial
+                        </li>
+                    </ul>
+
+                    <!-- Cartão decorativo de preview -->
+                    <div class="login-preview-card">
+                        <div class="preview-card-header">
+                            <span class="preview-badge">Sincronizado</span>
+                            <span class="preview-label">Saldo este mês</span>
+                        </div>
+                        <div class="preview-valor">R$ 4.850,00</div>
+                        <div class="preview-bars">
+                            <div class="preview-bar" style="height:38%"><div class="preview-bar-fill"></div></div>
+                            <div class="preview-bar" style="height:62%"><div class="preview-bar-fill"></div></div>
+                            <div class="preview-bar" style="height:80%"><div class="preview-bar-fill"></div></div>
+                            <div class="preview-bar" style="height:55%"><div class="preview-bar-fill"></div></div>
+                            <div class="preview-bar" style="height:92%"><div class="preview-bar-fill"></div></div>
+                            <div class="preview-bar" style="height:70%"><div class="preview-bar-fill"></div></div>
+                            <div class="preview-bar" style="height:48%"><div class="preview-bar-fill"></div></div>
+                        </div>
                     </div>
                 </div>
-                <h2 id="titulo-login">Acesso Restrito</h2>
-                <p class="login-subtitulo">Gerencie suas finanças de forma inteligente</p>
-                <form id="form-login">
+
+                <!-- PAINEL DIREITO — FORMULÁRIO -->
+                <div class="login-painel-form">
+                    <div class="card-login">
+                        <div class="login-card-topo">
+                            <div class="login-card-titulos">
+                                <p class="login-card-kicker">Entrada segura</p>
+                                <h2 id="titulo-login">Entre no seu fechamento</h2>
+                            </div>
+                            <span class="login-card-chip">Conta protegida</span>
+                        </div>
+                        <p class="login-subtitulo">Gerencie suas finanças de forma inteligente</p>
+                        <div class="login-card-highlights" aria-hidden="true">
+                            <span class="login-highlight-item">Resumo do per&iacute;odo</span>
+                            <span class="login-highlight-item">Leitura em tempo real</span>
+                        </div>
+                        <form id="form-login">
                     <div class="input-group">
                         <label for="email-login">E-mail</label>
                         <input type="email" id="email-login" placeholder="seu@email.com" required>
@@ -124,47 +179,86 @@
                         Entrar com o Google
                     </button>
                 </form>
-                <p id="msg-erro" class="erro-login" style="display: none;">Erro ao acessar!</p>
-                <button id="btn-mudar-modo" class="btn-alternar-auth">Não tem conta? Crie uma aqui</button>
-            </div>
+                        <p id="msg-erro" class="erro-login" style="display: none;">Erro ao acessar!</p>
+                        <button id="btn-mudar-modo" class="btn-alternar-auth">Não tem conta? Crie uma aqui</button>
+                    </div>
+                </div><!-- /login-painel-form -->
+
+            </div><!-- /login-split -->
         </div>
 
         <div id="tela-app" style="display: none;" class="animado">
             
             <div id="saudacao-usuario" class="saudacao-usuario">
-                <h2>Olá, <span id="nome-usuario">usuário</span>!</h2>
-                <p id="saudacao-subtitulo">Veja como estão suas finanças hoje.</p>
+                <p class="saudacao-kicker">Extrato de fechamento</p>
+                <h2><span class="saudacao-linha">Olá,</span><span id="nome-usuario" class="saudacao-nome">usuário!</span></h2>
+                <p id="saudacao-subtitulo">Seu panorama financeiro do período, com foco no que importa agora.</p>
             </div>
 
-            <div class="dashboard-grid">
+            <div class="dashboard-overview-shell">
                 
-                <div class="coluna-resumo">
-                    <div class="card card-espacado">
-                        <div class="resumo-cabecalho">
-                            <h3>Resumo Financeiro</h3>
-                            <select id="filtro-mes">
+                <div class="dashboard-overview-main">
+                    <div class="card card-espacado card-resumo-geral dashboard-resumo-shell">
+                        <div class="resumo-superior">
+                            <div class="resumo-cabecalho">
+                            <div class="resumo-titulo-grupo">
+                                <span class="resumo-kicker">Fechamento do período</span>
+                                <h3>Resumo Financeiro</h3>
+                            </div>
+                            <select id="filtro-mes" aria-label="Filtrar resumo financeiro por mês">
                                 <option value="Todos">Carregando...</option>
                             </select>
                         </div>
-                        
+                        <div class="resumo-pulse">
+                            <div class="resumo-pulse-topo">
+                                <span class="resumo-pulse-label">Leitura do per&iacute;odo</span>
+                                <strong id="status-orcamento" class="resumo-status-chip status-neutro">Aguardando dados</strong>
+                            </div>
+                            <p id="resumo-insight" class="resumo-insight">Seu fechamento vai ganhar uma leitura r&aacute;pida assim que houver movimenta&ccedil;&otilde;es registradas.</p>
+                        </div>
+                        </div>
+
                         <div class="grid-resumo">
                             <div class="card-resumo card-receita">
-                                <p class="rotulo-resumo">⬆️ Receitas</p>
+                                <div class="resumo-card-topo">
+                                    <p class="rotulo-resumo">Receitas</p>
+                                    <span class="resumo-icone icone-receita">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                                    </span>
+                                </div>
                                 <p id="valor-receitas-display" class="valor-resumo valor-receita">R$ 0,00</p>
+                                <p class="apoio-resumo">Entradas confirmadas no período selecionado.</p>
                             </div>
-                            
+
                             <div class="card-resumo card-despesa">
-                                <p class="rotulo-resumo">⬇️ Despesas</p>
+                                <div class="resumo-card-topo">
+                                    <p class="rotulo-resumo">Despesas</p>
+                                    <span class="resumo-icone icone-despesa">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                                    </span>
+                                </div>
                                 <p id="valor-despesas-display" class="valor-resumo valor-despesa">R$ 0,00</p>
+                                <p class="apoio-resumo">Saídas registradas para acompanhar sua pressão de gasto.</p>
                             </div>
 
                             <div class="card-resumo card-saldo">
-                                <p class="rotulo-resumo">Saldo Líquido</p>
+                                <div class="resumo-card-topo">
+                                    <p class="rotulo-resumo">Saldo Líquido</p>
+                                    <span class="resumo-icone icone-saldo">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                    </span>
+                                </div>
                                 <p id="valor-saldo-display" class="valor-resumo valor-saldo">R$ 0,00</p>
+                                <p class="apoio-resumo apoio-resumo-destaque">Resultado consolidado entre receitas e despesas do período.</p>
                             </div>
 
                             <div class="card-resumo card-progresso">
-                                <p class="rotulo-resumo">📉 Uso da Receita</p>
+                                <div class="resumo-card-topo">
+                                    <p class="rotulo-resumo">Uso da Receita</p>
+                                    <span class="resumo-icone icone-progresso">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                                    </span>
+                                </div>
                                 <div class="barra-progresso-container">
                                     <div class="barra-progresso-fundo">
                                         <div id="barra-progresso-preenchimento" class="barra-progresso-preenchimento" style="width: 0%;"></div>
@@ -176,31 +270,58 @@
                         </div>
                     </div>
 
-                    <div class="card">
-                        <h3 class="titulo-secao">Distribuição de Gastos</h3>
-                        <div class="painel-grafico">
+                </div>
+
+                <aside class="dashboard-overview-aside">
+                    <div class="card dashboard-radar-card">
+                        <div class="bloco-secao-cabecalho bloco-secao-cabecalho-compacto bloco-grafico-cabecalho">
+                            <div class="secao-titulo-stack">
+                                <p class="secao-kicker">Distribuição</p>
+                                <h3 class="titulo-secao-principal">Radar de categorias</h3>
+                                <p class="secao-auxiliar secao-auxiliar-grafico">Veja onde seu orçamento está mais concentrado neste período.</p>
+                            </div>
+                        </div>
+                        <div class="dashboard-radar-topline">
+                            <span id="dashboard-total-categorias" class="radar-pill">0 categorias monitoradas</span>
+                            <span id="dashboard-categoria-lider" class="radar-pill radar-pill-destaque">Sem destaque no per&iacute;odo</span>
+                        </div>
+                        <div class="painel-grafico painel-grafico-radar">
+                            <div class="grafico-centro">
+                                <span class="grafico-centro-rotulo">Sa&iacute;das no per&iacute;odo</span>
+                                <strong id="grafico-total-despesas">R$ 0,00</strong>
+                                <span id="grafico-centro-detalhe">Nenhuma categoria com press&atilde;o registrada</span>
+                            </div>
                             <canvas id="graficoPizza"></canvas>
                         </div>
                         <div id="dashboard-categorias" class="dashboard-categorias"></div>
                     </div>
-                </div>
+                </aside>
+            </div>
 
-                <div class="coluna-dados">
-                    <div class="card card-espacado">
+            <div class="workspace-grid">
+                <div class="coluna-form">
+                        <div class="card card-espacado card-form-lancamento">
+                            <div class="bloco-secao-cabecalho form-card-header">
+                                <div>
+                                <p class="secao-kicker">Movimentação</p>
+                                <h3 class="titulo-secao-principal">Novo lançamento</h3>
+                            </div>
+                            <p class="secao-auxiliar">Registre receitas e despesas sem perder o fechamento do período de vista.</p>
+                        </div>
                         <form id="form-despesa" autocomplete="off">
                             <div class="form-despesa-grid">
-                                <div class="input-group">
+                                <div class="input-group input-group-tipo">
                                     <label for="tipo-lancamento">Tipo</label>
                                     <select id="tipo-lancamento" class="tipo-lancamento-select" required>
-                                        <option value="saida" selected>🔴 Despesa</option>
-                                        <option value="entrada">🟢 Receita</option>
+                                        <option value="saida" selected>Despesa</option>
+                                        <option value="entrada">Receita</option>
                                     </select>
                                 </div>
-                                <div class="input-group">
+                                <div class="input-group input-group-descricao">
                                     <label for="descricao">Descrição</label>
                                     <input type="text" id="descricao" placeholder="Ex: Salário, Aluguel..." required maxlength="100">
                                 </div>
-                                <div class="input-group">
+                                <div class="input-group input-group-categoria">
                                     <label for="categoria">Categoria</label>
                                     <select id="categoria" required>
                                         <option value="" disabled selected>Escolha...</option>
@@ -212,28 +333,35 @@
                                         <option value="Outros">Outros</option>
                                     </select>
                                 </div>
-                                <div class="input-group">
+                                <div class="input-group input-group-valor">
                                     <label for="valor">Valor (R$)</label>
                                     <input type="number" id="valor" placeholder="0,00" step="0.01" min="0.01" max="9999999.99" required>
                                 </div>
-                                <div class="input-group">
+                                <div class="input-group input-group-data">
                                     <label for="data-lancamento">Data</label>
                                     <input type="date" id="data-lancamento">
                                 </div>
                             </div>
                             <div class="form-acoes">
-                                <button type="submit" id="btn-submit" class="btn-primario">➕ Adicionar Lançamento</button>
-                                <button type="button" id="btn-cancelar-edicao" class="btn-cancelar">❌ Cancelar</button>
+                                <button type="submit" id="btn-submit" class="btn-primario">Adicionar Lançamento</button>
+                                <button type="button" id="btn-cancelar-edicao" class="btn-cancelar">Cancelar</button>
                             </div>
                         </form>
+                </div>
+
                     </div>
 
-                    <div class="card">
-                        <div class="cabecalho-tabela">
-                            <h3>Histórico de Lançamentos</h3>
+                <div class="coluna-historico">
+                        <div class="card card-historico-lancamentos">
+                            <div class="cabecalho-tabela cabecalho-tabela-principal">
+                            <div>
+                                <p class="secao-kicker">Conferência</p>
+                                <h3>Histórico de Lançamentos</h3>
+                            </div>
+                            <p class="cabecalho-tabela-aux">Busque, revise status e ajuste seus registros sem sair da tela principal.</p>
                         </div>
                         <div class="barra-busca-container">
-                            <input type="text" id="input-busca" placeholder="🔍 Buscar lançamentos..." class="input-busca">
+                            <input type="text" id="input-busca" placeholder="Buscar por descrição, categoria ou valor..." class="input-busca" aria-label="Buscar lançamentos">
                         </div>
                         <div class="tabela-responsiva">
                             <table id="tabela-despesas">
@@ -249,6 +377,7 @@
                                 <tbody id="tabela-corpo"></tbody>
                             </table>
                         </div>
+                        </div>
                     </div>
                 </div>
 
@@ -256,9 +385,9 @@
         </div>
     </div>
 
-    <div id="modal-confirmar" class="modal-overlay" style="display: none;">
-        <div class="modal-caixa">
-            <div class="modal-icone">⚠️</div>
+    <div id="modal-confirmar" class="modal-overlay" style="display: none;" aria-hidden="true">
+        <div class="modal-caixa" role="dialog" aria-modal="true" aria-labelledby="modal-titulo" aria-describedby="modal-mensagem" tabindex="-1">
+            <div class="modal-icone"><svg class="icone" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
             <h3 id="modal-titulo">Confirmar ação</h3>
             <p id="modal-mensagem">Tem certeza que deseja apagar este lançamento?</p>
             <div class="modal-botoes">
@@ -268,37 +397,50 @@
         </div>
     </div>
 
-    <div id="toast-container" class="toast-container"></div>
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
-    <button id="btn-abrir-chat" class="btn-ia-flutuante" style="display: none;">
-        <span class="btn-ia-icone">✨</span>
+    <button id="btn-abrir-chat" class="btn-ia-flutuante" style="display: none;" aria-label="Abrir assistente de IA">
+        <span class="btn-ia-icone"><svg class="icone" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/></svg></span>
         <span class="btn-ia-texto">Assistente IA</span>
     </button>
 
     <div id="container-chat-ia" class="chat-ia-oculto">
         <div class="chat-cabecalho">
             <div class="chat-cabecalho-info">
-                <div class="chat-avatar">🤖</div>
+                <div class="chat-avatar"><svg class="icone" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div>
                 <div>
                     <h3>Assistente Financeiro</h3>
                     <span class="chat-status">● Online</span>
                 </div>
             </div>
-            <button id="btn-fechar-chat" title="Fechar chat">✕</button>
+            <button id="btn-fechar-chat" title="Fechar chat" aria-label="Fechar chat"><svg class="icone" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
         </div>
-        <div id="area-mensagens" class="chat-mensagens">
+        <div id="area-mensagens" class="chat-mensagens" role="log" aria-live="polite" aria-relevant="additions text">
             <div class="mensagem ia">
-                <div class="mensagem-conteudo">Olá! Sou sua IA financeira. Tenho acesso aos seus dados — pergunte sobre seus gastos, saldo ou peça dicas! 💰</div>
+                <div class="mensagem-conteudo">Olá! Sou sua IA financeira. Tenho acesso aos seus dados — pergunte sobre seus gastos, saldo ou peça dicas!</div>
             </div>
         </div>
         <div class="chat-input-grupo">
             <input type="text" id="input-mensagem-ia" placeholder="Pergunte algo...">
-            <button id="btn-enviar-ia" title="Enviar mensagem">
+            <button id="btn-enviar-ia" title="Enviar mensagem" aria-label="Enviar mensagem para a IA">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
         </div>
     </div>
 
+    <script>
+    // Header glass scroll enhancement
+    (function(){
+        var h=document.querySelector('.cabecalho-principal'),t=false;
+        if(!h)return;
+        window.addEventListener('scroll',function(){
+            if(!t){t=true;requestAnimationFrame(function(){
+                h.classList.toggle('scrolled',window.scrollY>10);
+                t=false;
+            });}
+        },{passive:true});
+    })();
+    </script>
     <script type="module" src="app.js"></script>
 </body>
 </html>

@@ -18,7 +18,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
 }
 
-const appCheck = initializeAppCheck(app, {
+initializeAppCheck(app, {
     provider: new ReCaptchaV3Provider('6LddDJ8sAAAAABD3ixWDnvYN93i40ZkpEkED7XMl'),
     isTokenAutoRefreshEnabled: true
 });
@@ -38,11 +38,46 @@ let modoCadastro = false;
 let idEdicao = null;
 let historicoChat = [];
 
+const TEXTOS_AUTH = {
+    login: {
+        titulo: 'Entre no seu fechamento',
+        subtitulo: 'Acesse sua leitura mensal para revisar saldo, acompanhar categorias e registrar novos lan\u00e7amentos com contexto.',
+        acao: 'Entrar no Sistema',
+        alternancia: 'N\u00e3o tem conta? Crie uma aqui'
+    },
+    cadastro: {
+        titulo: 'Crie sua conta',
+        subtitulo: 'Monte seu acesso para acompanhar saldo, categorias e novos lan\u00e7amentos no mesmo painel.',
+        acao: 'Criar Conta',
+        alternancia: 'J\u00e1 tem conta? Fa\u00e7a login'
+    }
+};
+
+function atualizarTextosAuth() {
+    const conteudo = modoCadastro ? TEXTOS_AUTH.cadastro : TEXTOS_AUTH.login;
+    const subtitulo = document.querySelector('.login-subtitulo');
+    const apoioLogin = document.querySelector('.login-marca-sub');
+
+    document.getElementById('titulo-login').innerText = conteudo.titulo;
+    document.getElementById('btn-entrar').innerText = conteudo.acao;
+    document.getElementById('btn-mudar-modo').innerText = conteudo.alternancia;
+
+    if (subtitulo) {
+        subtitulo.innerText = conteudo.subtitulo;
+    }
+
+    if (apoioLogin) {
+        apoioLogin.innerText = 'A entrada acompanha o dashboard para voc\u00ea retomar o m\u00eas com contexto e decidir o pr\u00f3ximo passo mais r\u00e1pido.';
+    }
+}
+
 document.getElementById('btn-mudar-modo').addEventListener('click', alternarModoAuth);
 document.getElementById('btn-sair-nav').addEventListener('click', fazerLogout);
 document.getElementById('btn-tema').addEventListener('click', alternarTema);
 document.getElementById('filtro-mes').addEventListener('change', filtrarEAtualizar);
 document.getElementById('btn-cancelar-edicao').addEventListener('click', cancelarEdicao);
+
+atualizarTextosAuth();
 
 /* =========================================
    FUNÇÕES UTILITÁRIAS
@@ -52,7 +87,7 @@ function mostrarToast(msg, tipo = 'sucesso') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = `toast ${tipo}`;
-    toast.innerHTML = `<span>${tipo === 'sucesso' ? '✅' : '❌'}</span> <span>${escaparHTML(msg)}</span>`;
+    toast.innerHTML = `<span>${tipo === 'sucesso' ? icone('check-circle') : icone('x-circle')}</span> <span>${escaparHTML(msg)}</span>`;
     container.appendChild(toast);
     
     setTimeout(() => {
@@ -70,18 +105,40 @@ function escaparHTML(t) {
     return DOMPurify.sanitize(String(t), { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
 }
 
+const SVG_ATTRS = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+const ICONES_SVG = {
+    'check-circle': '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>',
+    'x-circle': '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+    'check': '<polyline points="20 6 9 17 4 12"/>',
+    'clock': '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    'pencil': '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>',
+    'trash': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+    'save': '<path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/>',
+    'file-text': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+    'pie-chart': '<path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>',
+};
+
+const SVG_LUA = `<svg class="icone-tema" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+const SVG_SOL = `<svg class="icone-tema" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+
+function icone(nome, tam = 16) {
+    const paths = ICONES_SVG[nome];
+    if (!paths) return '';
+    return `<svg class="icone" width="${tam}" height="${tam}" ${SVG_ATTRS}>${paths}</svg>`;
+}
+
 function infoCategoria(c) {
-    const i = { 
-        'Contas Fixas': { icone: '🏠', classe: 'cat-contas', cor: '#ff003c' },
-        'Alimentação': { icone: '🍔', classe: 'cat-alimentacao', cor: '#39ff14' },
-        'Transporte': { icone: '🚌', classe: 'cat-transporte', cor: '#00e5ff' },
-        'Educação': { icone: '📚', classe: 'cat-educacao', cor: '#b500ff' },
-        'Saúde': { icone: '🏋️', classe: 'cat-saude', cor: '#ff00ff' },
-        'Outros': { icone: '✨', classe: 'cat-outros', cor: '#ffaa00' },
-        'Salário': { icone: '💼', classe: 'cat-salario', cor: '#22c55e' },
-        'Freelance': { icone: '💻', classe: 'cat-freelance', cor: '#06b6d4' },
-        'Investimentos': { icone: '📈', classe: 'cat-investimentos', cor: '#8b5cf6' },
-        'Vendas': { icone: '🛒', classe: 'cat-vendas', cor: '#f97316' }
+    const i = {
+        'Contas Fixas': { classe: 'cat-contas', cor: '#fb7185' },
+        'Alimentação': { classe: 'cat-alimentacao', cor: '#34d399' },
+        'Transporte': { classe: 'cat-transporte', cor: '#60a5fa' },
+        'Educação': { classe: 'cat-educacao', cor: '#a78bfa' },
+        'Saúde': { classe: 'cat-saude', cor: '#f472b6' },
+        'Outros': { classe: 'cat-outros', cor: '#fbbf24' },
+        'Salário': { classe: 'cat-salario', cor: '#34d399' },
+        'Freelance': { classe: 'cat-freelance', cor: '#22d3ee' },
+        'Investimentos': { classe: 'cat-investimentos', cor: '#a78bfa' },
+        'Vendas': { classe: 'cat-vendas', cor: '#fb923c' }
     };
     return i[c] || i['Outros'];
 }
@@ -121,6 +178,13 @@ function formatarDataDisplay(valorISO) {
     return `${parseInt(dia)} de ${meses[parseInt(mes) - 1]}. ${ano}`;
 }
 
+function paraInputDate(d) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
+
 function inicializarDatePicker() {
     const input = document.getElementById('data-lancamento');
     const parent = input.parentElement;
@@ -153,13 +217,9 @@ function inicializarDatePicker() {
 }
 
 function definirDataPadrao() {
-    const hoje = new Date();
-    const yyyy = hoje.getFullYear();
-    const mm = String(hoje.getMonth() + 1).padStart(2, '0');
-    const dd = String(hoje.getDate()).padStart(2, '0');
     const input = document.getElementById('data-lancamento');
-    input.value = `${yyyy}-${mm}-${dd}`;
-    
+    input.value = paraInputDate(new Date());
+
     const display = document.getElementById('data-picker-display');
     if (display) {
         display.textContent = formatarDataDisplay(input.value);
@@ -175,12 +235,19 @@ function obterMesAno(dataInput) {
     return `${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 }
 
+function obterMillis(d) {
+    if (!d) return 0;
+    if (typeof d.toMillis === 'function') return d.toMillis();
+    const t = new Date(d).getTime();
+    return isNaN(t) ? 0 : t;
+}
+
 function cancelarEdicao() {
     idEdicao = null;
     document.getElementById('form-despesa').reset();
     
     const btnSubmit = document.getElementById('btn-submit');
-    btnSubmit.innerText = "➕ Adicionar Lançamento";
+    btnSubmit.innerHTML = "Adicionar Lançamento";
     btnSubmit.style.backgroundColor = "var(--primaria)";
     
     document.getElementById('btn-cancelar-edicao').style.display = 'none';
@@ -194,31 +261,92 @@ function cancelarEdicao() {
    ========================================= */
 
 let resolverModal = null;
+let elementoFocadoAntesModal = null;
+
+const modalConfirmar = document.getElementById('modal-confirmar');
+const modalCaixa = modalConfirmar.querySelector('.modal-caixa');
+const btnModalCancelar = document.getElementById('modal-cancelar');
+const btnModalConfirmar = document.getElementById('modal-confirmar-btn');
+const SELETOR_FOCO_MODAL = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function restaurarFocoModal() {
+    if (elementoFocadoAntesModal && document.contains(elementoFocadoAntesModal)) {
+        elementoFocadoAntesModal.focus();
+    }
+    elementoFocadoAntesModal = null;
+}
+
+function fecharModal(confirmado = false) {
+    modalConfirmar.style.display = 'none';
+    modalConfirmar.setAttribute('aria-hidden', 'true');
+    document.removeEventListener('keydown', tratarTecladoModal);
+
+    if (resolverModal) {
+        resolverModal(confirmado);
+        resolverModal = null;
+    }
+
+    restaurarFocoModal();
+}
+
+function tratarTecladoModal(e) {
+    if (modalConfirmar.style.display !== 'flex') return;
+
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        fecharModal(false);
+        return;
+    }
+
+    if (e.key !== 'Tab') return;
+
+    const focaveis = Array.from(modalCaixa.querySelectorAll(SELETOR_FOCO_MODAL));
+    if (!focaveis.length) {
+        e.preventDefault();
+        modalCaixa.focus();
+        return;
+    }
+
+    const primeiro = focaveis[0];
+    const ultimo = focaveis[focaveis.length - 1];
+
+    if (e.shiftKey && document.activeElement === primeiro) {
+        e.preventDefault();
+        ultimo.focus();
+    } else if (!e.shiftKey && document.activeElement === ultimo) {
+        e.preventDefault();
+        primeiro.focus();
+    }
+}
 
 function abrirModal(titulo, mensagem, textoBotao = 'Confirmar') {
     return new Promise((resolve) => {
         resolverModal = resolve;
+        elementoFocadoAntesModal = document.activeElement;
         document.getElementById('modal-titulo').textContent = titulo;
         document.getElementById('modal-mensagem').textContent = mensagem;
-        document.getElementById('modal-confirmar-btn').textContent = textoBotao;
-        document.getElementById('modal-confirmar').style.display = 'flex';
+        btnModalConfirmar.textContent = textoBotao;
+        modalConfirmar.style.display = 'flex';
+        modalConfirmar.setAttribute('aria-hidden', 'false');
+        document.addEventListener('keydown', tratarTecladoModal);
+
+        requestAnimationFrame(() => {
+            btnModalCancelar.focus();
+        });
     });
 }
 
-document.getElementById('modal-cancelar').addEventListener('click', () => {
-    document.getElementById('modal-confirmar').style.display = 'none';
-    if (resolverModal) { resolverModal(false); resolverModal = null; }
+btnModalCancelar.addEventListener('click', () => {
+    fecharModal(false);
 });
 
-document.getElementById('modal-confirmar-btn').addEventListener('click', () => {
-    document.getElementById('modal-confirmar').style.display = 'none';
-    if (resolverModal) { resolverModal(true); resolverModal = null; }
+btnModalConfirmar.addEventListener('click', () => {
+    fecharModal(true);
 });
 
-document.getElementById('modal-confirmar').addEventListener('click', (e) => {
+modalConfirmar.addEventListener('click', (e) => {
     if (e.target === e.currentTarget) {
-        document.getElementById('modal-confirmar').style.display = 'none';
-        if (resolverModal) { resolverModal(false); resolverModal = null; }
+        fecharModal(false);
     }
 });
 
@@ -255,7 +383,7 @@ function animarValor(elemento, valorFinal, duracao = 600) {
 }
 
 /* =========================================
-   AUTENTICAÇÃO E LOGIN
+   AUTENTICACAO E LOGIN
    ========================================= */
 
 function alternarModoAuth() {
@@ -264,9 +392,7 @@ function alternarModoAuth() {
     document.getElementById('container-confirma-senha').style.display = modoCadastro ? 'flex' : 'none';
     document.getElementById('container-forca-senha').style.display = modoCadastro ? 'flex' : 'none';
     document.getElementById('confirma-senha').required = modoCadastro;
-    document.getElementById('titulo-login').innerText = modoCadastro ? "Criar Nova Conta" : "Acesso Restrito";
-    document.getElementById('btn-entrar').innerText = modoCadastro ? "Criar Conta" : "Entrar no Sistema";
-    document.getElementById('btn-mudar-modo').innerText = modoCadastro ? "Já tem conta? Faça login" : "Não tem conta? Crie uma aqui";
+    atualizarTextosAuth();
     
     if (!modoCadastro) {
         document.getElementById('senha-login').value = '';
@@ -306,7 +432,7 @@ function verificarForcaSenha(senha) {
     criterios.forEach(c => {
         const passou = c.regex.test(senha);
         if (passou) pontuacao++;
-        htmlDicas += `<span class="dica-senha ${passou ? 'completa' : 'pendente'}">${passou ? '✓' : '○'} ${c.label}</span>`;
+        htmlDicas += `<span class="dica-senha ${passou ? 'completa' : 'pendente'}">${passou ? '\u2713' : '\u25cb'} ${c.label}</span>`;
     });
     
     if (senha.length >= 12) pontuacao = Math.min(pontuacao + 1, 4);
@@ -349,32 +475,32 @@ function fazerLogout() {
 onAuthStateChanged(auth, (user) => {
     if (user) {
         usuarioLogado = user;
+        document.body.classList.add('app-logado');
         document.getElementById('tela-login').style.display = 'none';
         document.getElementById('tela-app').style.display = 'block';
         document.getElementById('btn-sair-nav').style.display = 'block';
         document.getElementById('btn-abrir-chat').style.display = 'flex';
-        
+        resetarMensagemInicialIA();
+        atualizarEstadoChat();
+
         const nome = user.displayName || (user.email ? user.email.split('@')[0] : 'usuário');
-        document.getElementById('nome-usuario').textContent = nome;
         const hora = new Date().getHours();
         let saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
         document.getElementById('saudacao-usuario').querySelector('h2').innerHTML = 
-            `${saudacao}, <span id="nome-usuario">${escaparHTML(nome)}</span>!`;
+            `<span class="saudacao-linha">${saudacao},</span><span id="nome-usuario" class="saudacao-nome">${escaparHTML(nome)}!</span>`;
         
         carregarBancoDeDados(user.uid); 
         resetarTimer();
     } else {
         usuarioLogado = null;
+        document.body.classList.remove('app-logado');
         document.getElementById('tela-login').style.display = 'flex';
         document.getElementById('tela-app').style.display = 'none';
         document.getElementById('btn-sair-nav').style.display = 'none';
         document.getElementById('btn-abrir-chat').style.display = 'none';
         document.getElementById('container-chat-ia').classList.add('chat-ia-oculto');
-        
-        document.getElementById('area-mensagens').innerHTML = `
-            <div class="mensagem ia">
-                <div class="mensagem-conteudo">Olá! Sou sua IA financeira. Tenho acesso aos seus dados — pergunte sobre seus gastos, saldo ou peça dicas! 💰</div>
-            </div>`;
+        atualizarEstadoChat();
+        resetarMensagemInicialIA();
         historicoChat = [];
 
         if (pararDeEscutarBanco) pararDeEscutarBanco(); 
@@ -435,7 +561,7 @@ document.getElementById('btn-google').addEventListener('click', async () => {
 });
 
 /* =========================================
-   OPERAÇÕES NO FIRESTORE
+   OPERACOES NO FIRESTORE
    ========================================= */
 
 function carregarBancoDeDados(uid) {
@@ -448,12 +574,8 @@ function carregarBancoDeDados(uid) {
     pararDeEscutarBanco = onSnapshot(q, (snap) => {
         listaAtualDeDespesas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         
-        listaAtualDeDespesas.sort((a, b) => {
-            const dataA = a.dataCriacao?.toMillis ? a.dataCriacao.toMillis() : (a.dataCriacao ? new Date(a.dataCriacao).getTime() : 0);
-            const dataB = b.dataCriacao?.toMillis ? b.dataCriacao.toMillis() : (b.dataCriacao ? new Date(b.dataCriacao).getTime() : 0);
-            return dataB - dataA;
-        });
-        
+        listaAtualDeDespesas.sort((a, b) => obterMillis(b.dataCriacao) - obterMillis(a.dataCriacao));
+
         atualizarOpcoesDeMeses(listaAtualDeDespesas);
         filtrarEAtualizar();
     }, (error) => {
@@ -467,11 +589,7 @@ function carregarBancoDeDados(uid) {
         const qFallback = query(despesasRef, where("userId", "==", uid));
         pararDeEscutarBanco = onSnapshot(qFallback, (snap) => {
             listaAtualDeDespesas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            listaAtualDeDespesas.sort((a, b) => {
-                const dataA = a.dataCriacao?.toMillis ? a.dataCriacao.toMillis() : 0;
-                const dataB = b.dataCriacao?.toMillis ? b.dataCriacao.toMillis() : 0;
-                return dataB - dataA;
-            });
+            listaAtualDeDespesas.sort((a, b) => obterMillis(b.dataCriacao) - obterMillis(a.dataCriacao));
             atualizarOpcoesDeMeses(listaAtualDeDespesas);
             filtrarEAtualizar();
         });
@@ -485,6 +603,17 @@ document.getElementById('form-despesa').addEventListener('submit', async (e) => 
 
     const dataInput = document.getElementById('data-lancamento').value;
     const valorInput = parseFloat(document.getElementById('valor').value);
+    const descricaoInput = document.getElementById('descricao');
+    const descricao = descricaoInput.value.trim();
+
+    if (!descricao) {
+        mostrarToast("Informe uma descrição válida.", "erro");
+        btn.disabled = false;
+        descricaoInput.focus();
+        return;
+    }
+
+    descricaoInput.value = descricao;
 
     if (isNaN(valorInput) || valorInput <= 0) {
         mostrarToast("Informe um valor válido e positivo.", "erro");
@@ -494,7 +623,7 @@ document.getElementById('form-despesa').addEventListener('submit', async (e) => 
 
     const dados = {
         tipo: document.getElementById('tipo-lancamento').value,
-        descricao: document.getElementById('descricao').value,
+        descricao,
         categoria: document.getElementById('categoria').value,
         valor: valorInput,
         userId: usuarioLogado.uid
@@ -562,7 +691,7 @@ document.getElementById('tabela-corpo').addEventListener('click', async (e) => {
             }
             
             await updateDoc(doc(db, "despesas", id), { pago: novoPago });
-            mostrarToast(novoPago ? "Marcado como pago! ✅" : "Marcado como pendente ⏳");
+            mostrarToast(novoPago ? "Marcado como pago!" : "Marcado como pendente");
             
         } else if (btn.classList.contains('btn-excluir')) {
             const item = listaAtualDeDespesas.find(d => d.id === id);
@@ -590,10 +719,7 @@ document.getElementById('tabela-corpo').addEventListener('click', async (e) => {
             
             if (item.dataCriacao) {
                 const d = item.dataCriacao.toDate ? item.dataCriacao.toDate() : new Date(item.dataCriacao);
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth() + 1).padStart(2, '0');
-                const dd = String(d.getDate()).padStart(2, '0');
-                const valorData = `${yyyy}-${mm}-${dd}`;
+                const valorData = paraInputDate(d);
                 document.getElementById('data-lancamento').value = valorData;
                 const dp = document.getElementById('data-picker-display');
                 if (dp) dp.textContent = formatarDataDisplay(valorData);
@@ -604,7 +730,7 @@ document.getElementById('tabela-corpo').addEventListener('click', async (e) => {
             }
             
             const btnSubmit = document.getElementById('btn-submit');
-            btnSubmit.innerText = "💾 Salvar Alterações";
+            btnSubmit.innerHTML = icone('save') + " Salvar Alterações";
             btnSubmit.style.backgroundColor = "var(--sucesso)";
             document.getElementById('btn-cancelar-edicao').style.display = 'block';
             
@@ -658,19 +784,104 @@ function filtrarEAtualizar() {
         : listaAtualDeDespesas.filter(i => obterMesAno(i.dataCriacao) === mesSelecionado);
     
     if (textoBusca) {
-        filtrados = filtrados.filter(i => 
-            i.descricao.toLowerCase().includes(textoBusca) || 
-            i.categoria.toLowerCase().includes(textoBusca) ||
-            String(i.valor).includes(textoBusca)
-        );
+        filtrados = filtrados.filter(i => {
+            const descricao = (i.descricao || '').toLowerCase();
+            const categoria = (i.categoria || '').toLowerCase();
+            const valor = String(i.valor ?? '');
+            return (
+                descricao.includes(textoBusca) ||
+                categoria.includes(textoBusca) ||
+                valor.includes(textoBusca)
+            );
+        });
     }
     
     atualizarInterface(filtrados);
 }
 
 /* =========================================
-   ATUALIZAÇÃO DE INTERFACE E GRÁFICOS
+   ATUALIZACAO DE INTERFACE E GRAFICOS
    ========================================= */
+
+function atualizarNarrativaDashboard(receitas, despesas, saldo, totaisPorCategoria) {
+    const statusEl = document.getElementById('status-orcamento');
+    const insightEl = document.getElementById('resumo-insight');
+    const totalCategoriasEl = document.getElementById('dashboard-total-categorias');
+    const categoriaLiderEl = document.getElementById('dashboard-categoria-lider');
+    const graficoTotalEl = document.getElementById('grafico-total-despesas');
+    const graficoDetalheEl = document.getElementById('grafico-centro-detalhe');
+
+    const categoriasOrdenadas = Object.entries(totaisPorCategoria || {}).sort((a, b) => b[1] - a[1]);
+    const categoriaLider = categoriasOrdenadas[0];
+    const totalCategorias = categoriasOrdenadas.length;
+    const percentualUso = receitas > 0 ? (despesas / receitas) * 100 : 0;
+
+    if (graficoTotalEl) {
+        graficoTotalEl.textContent = formatarMoeda(despesas);
+    }
+
+    if (totalCategoriasEl) {
+        totalCategoriasEl.textContent = totalCategorias === 0
+            ? '0 categorias monitoradas'
+            : `${totalCategorias} categoria${totalCategorias > 1 ? 's' : ''} monitorada${totalCategorias > 1 ? 's' : ''}`;
+    }
+
+    if (categoriaLiderEl) {
+        if (categoriaLider) {
+            const percentualLider = despesas > 0 ? (categoriaLider[1] / despesas) * 100 : 0;
+            categoriaLiderEl.textContent = `${categoriaLider[0]} lidera com ${percentualLider.toFixed(0)}%`;
+        } else {
+            categoriaLiderEl.textContent = 'Sem destaque no período';
+        }
+    }
+
+    if (graficoDetalheEl) {
+        if (categoriaLider) {
+            const percentualLider = despesas > 0 ? (categoriaLider[1] / despesas) * 100 : 0;
+            graficoDetalheEl.textContent = `${categoriaLider[0]} responde por ${percentualLider.toFixed(0)}% das saídas`;
+        } else {
+            graficoDetalheEl.textContent = 'Nenhuma categoria com pressão registrada';
+        }
+    }
+
+    if (!statusEl || !insightEl) return;
+
+    let statusClasse = 'status-neutro';
+    let statusTexto = 'Aguardando dados';
+    let insightTexto = 'Seu fechamento vai ganhar uma leitura rápida assim que houver movimentações registradas.';
+
+    if (receitas <= 0 && despesas <= 0) {
+        statusTexto = 'Sem movimento';
+    } else if (receitas <= 0 && despesas > 0) {
+        statusClasse = 'status-critico';
+        statusTexto = 'Sem cobertura';
+        insightTexto = `Há ${formatarMoeda(despesas)} em saídas no período, mas nenhuma receita registrada para cobrir esse movimento.`;
+    } else if (saldo < 0 || percentualUso >= 100) {
+        statusClasse = 'status-critico';
+        statusTexto = 'No vermelho';
+        insightTexto = `As saídas já ultrapassaram a receita em ${formatarMoeda(Math.abs(saldo))}. Vale revisar o maior foco de gasto agora.`;
+    } else if (percentualUso >= 80) {
+        statusClasse = 'status-alerta';
+        statusTexto = 'No limite';
+        insightTexto = `${percentualUso.toFixed(0)}% da receita já foi comprometida. O período segue positivo, mas com margem curta.`;
+    } else if (percentualUso >= 60) {
+        statusClasse = 'status-alerta';
+        statusTexto = 'Atenção ativa';
+        insightTexto = `${percentualUso.toFixed(0)}% da receita foi usada. Ainda há folga, mas o ritmo de saída merece acompanhamento.`;
+    } else if (despesas === 0 && receitas > 0) {
+        statusClasse = 'status-positivo';
+        statusTexto = 'Fôlego total';
+        insightTexto = `Todo o valor de ${formatarMoeda(receitas)} segue preservado no período, sem saídas registradas até agora.`;
+    } else {
+        statusClasse = 'status-positivo';
+        statusTexto = 'Sob controle';
+        insightTexto = `Você preserva ${formatarMoeda(saldo)} no período, com ${formatarMoeda(receitas - despesas)} ainda disponível para decisão.`;
+    }
+
+    statusEl.className = `resumo-status-chip ${statusClasse}`;
+    statusEl.textContent = statusTexto;
+    insightEl.textContent = insightTexto;
+}
 
 function atualizarInterface(dados) {
     const tabela = document.getElementById('tabela-corpo');
@@ -682,7 +893,7 @@ function atualizarInterface(dados) {
             <tr>
                 <td colspan="5" style="border: none;">
                     <div class="estado-vazio">
-                        <div class="estado-vazio-icone">📝</div>
+                        <div class="estado-vazio-icone">${icone('file-text', 48)}</div>
                         <h4>Nenhum lançamento encontrado</h4>
                         <p>Adicione seu primeiro lançamento usando o formulário acima.</p>
                     </div>
@@ -697,10 +908,12 @@ function atualizarInterface(dados) {
         elSaldo.classList.remove('brilho-negativo', 'brilho-positivo');
         
         atualizarBarraProgresso(0, 0);
+        atualizarNarrativaDashboard(0, 0, 0, {});
         
         dashCat.innerHTML = `
             <div class="estado-vazio" style="padding: 20px 10px;">
-                <div class="estado-vazio-icone">📊</div>
+                <div class="estado-vazio-icone">${icone('pie-chart', 48)}</div>
+                <h4>Radar aguardando movimento</h4>
                 <p>Seus gastos por categoria aparecerão aqui.</p>
             </div>`;
         
@@ -712,21 +925,23 @@ function atualizarInterface(dados) {
 
     dados.forEach(item => {
         const tipo = item.tipo || 'saida';
+        const categoriaLabel = item.categoria || 'Sem categoria';
         if (tipo === 'entrada') {
             totalReceitas += item.valor;
         } else {
             totalDespesas += item.valor;
-            totaisPorCategoria[item.categoria] = (totaisPorCategoria[item.categoria] || 0) + item.valor;
+            totaisPorCategoria[categoriaLabel] = (totaisPorCategoria[categoriaLabel] || 0) + item.valor;
         }
 
-        const info = infoCategoria(item.categoria);
+        const info = infoCategoria(categoriaLabel);
         const tr = document.createElement('tr');
         tr.className = item.pago ? 'linha-paga' : '';
         
         const classeCorValor = tipo === 'entrada' ? 'valor-positivo' : 'valor-negativo';
         const sinal = tipo === 'entrada' ? '+' : '-';
+        const rotuloStatus = item.pago ? 'Marcar como pendente' : 'Marcar como pago';
 
-        let dataFormatada = '—';
+        let dataFormatada = '\u2014';
         if (item.dataCriacao) {
             const d = item.dataCriacao.toDate ? item.dataCriacao.toDate() : new Date(item.dataCriacao);
             dataFormatada = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -734,12 +949,12 @@ function atualizarInterface(dados) {
 
         tr.innerHTML = `
             <td data-label="Ações"><div class="acoes-container">
-                <button class="btn-status ${item.pago ? 'status-pago' : 'status-pendente'}" data-id="${escaparHTML(item.id)}">${item.pago ? '✅' : '⏳'}</button>
-                <button class="btn-editar" data-id="${escaparHTML(item.id)}">✏️</button>
-                <button class="btn-excluir" data-id="${escaparHTML(item.id)}">🗑️</button>
+                <button class="btn-status ${item.pago ? 'status-pago' : 'status-pendente'}" data-id="${escaparHTML(item.id)}" title="${rotuloStatus}" aria-label="${rotuloStatus}" aria-pressed="${item.pago ? 'true' : 'false'}">${item.pago ? icone('check', 14) : icone('clock', 14)}</button>
+                <button class="btn-editar" data-id="${escaparHTML(item.id)}" title="Editar lançamento" aria-label="Editar lançamento">${icone('pencil', 14)}</button>
+                <button class="btn-excluir" data-id="${escaparHTML(item.id)}" title="Apagar lançamento" aria-label="Apagar lançamento">${icone('trash', 14)}</button>
             </div></td>
             <td data-label="Descrição"><strong>${escaparHTML(item.descricao)}</strong></td>
-            <td data-label="Categoria"><span class="tag ${info.classe}">${tipo === 'entrada' ? '💰 Receita' : info.icone + ' ' + escaparHTML(item.categoria)}</span></td>
+            <td data-label="Categoria"><span class="tag ${info.classe}">${escaparHTML(categoriaLabel)}</span></td>
             <td data-label="Data">${dataFormatada}</td>
             <td data-label="Valor" class="${classeCorValor} coluna-valor">
                 <strong>${sinal} ${formatarMoeda(item.valor)}</strong>
@@ -763,20 +978,33 @@ function atualizarInterface(dados) {
     }
 
     atualizarBarraProgresso(totalDespesas, totalReceitas);
+    atualizarNarrativaDashboard(totalReceitas, totalDespesas, saldo, totaisPorCategoria);
 
     let htmlCategorias = '';
-    Object.keys(totaisPorCategoria).forEach(cat => {
-        const info = infoCategoria(cat);
-        const pct = totalDespesas > 0 ? ((totaisPorCategoria[cat] / totalDespesas) * 100).toFixed(1) : 0;
-        htmlCategorias += `
-            <div class="card-cat">
-                <div class="card-cat-header">${info.icone} ${escaparHTML(cat)}</div>
-                <div style="text-align: right;">
-                    <p>${formatarMoeda(totaisPorCategoria[cat])}</p>
-                    <span style="font-size: 11px; color: var(--texto-muted); font-weight: 600;">${pct}%</span>
-                </div>
-            </div>`;
-    });
+    Object.entries(totaisPorCategoria)
+        .sort(([, valorA], [, valorB]) => valorB - valorA)
+        .forEach(([cat, valorCategoria], index) => {
+            const info = infoCategoria(cat);
+            const pct = totalDespesas > 0 ? ((valorCategoria / totalDespesas) * 100).toFixed(1) : 0;
+            const larguraBarra = totalDespesas > 0 ? Math.max((valorCategoria / totalDespesas) * 100, 8) : 0;
+            htmlCategorias += `
+                <div class="card-cat" style="--categoria-accent: ${info.cor};">
+                    <span class="card-cat-ranking">${String(index + 1).padStart(2, '0')}</span>
+                    <div class="card-cat-conteudo">
+                        <div class="card-cat-header">
+                            <span class="card-cat-dot" aria-hidden="true"></span>
+                            <span class="card-cat-nome">${escaparHTML(cat)}</span>
+                        </div>
+                        <div class="card-cat-trilha" aria-hidden="true">
+                            <span class="card-cat-barra" style="width: ${larguraBarra}%;"></span>
+                        </div>
+                    </div>
+                    <div class="card-cat-metricas">
+                        <p>${formatarMoeda(valorCategoria)}</p>
+                        <span class="card-cat-pct">${pct}% do total</span>
+                    </div>
+                </div>`;
+        });
     
     dashCat.innerHTML = htmlCategorias;
     desenharGrafico(totaisPorCategoria);
@@ -805,7 +1033,7 @@ function atualizarBarraProgresso(despesas, receitas) {
     barra.className = 'barra-progresso-preenchimento';
     if (percentual >= 90) {
         barra.classList.add('perigo');
-        legenda.textContent = `⚠️ Atenção! Você já gastou ${percentual.toFixed(0)}% da receita.`;
+        legenda.textContent = `Atenção! Você já gastou ${percentual.toFixed(0)}% da receita.`;
         legenda.style.color = 'var(--perigo)';
     } else if (percentual >= 70) {
         barra.classList.add('alerta');
@@ -822,93 +1050,113 @@ function desenharGrafico(dados) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
-    if (meuGrafico) meuGrafico.destroy();
-    
     const nomes = Object.keys(dados);
     const valores = Object.values(dados);
 
-    if (!nomes.length) return;
+    if (!nomes.length) {
+        if (meuGrafico) {
+            meuGrafico.destroy();
+            meuGrafico = null;
+        }
+        return;
+    }
 
-    const coresGradiente = nomes.map(n => {
-        const corBase = infoCategoria(n).cor;
-        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        gradient.addColorStop(0, corBase); 
-        gradient.addColorStop(1, corBase + '40'); 
-        return gradient;
-    });
-
+    const coresSolidas = nomes.map(n => infoCategoria(n).cor);
     const isLight = document.body.classList.contains('light-mode');
 
-    meuGrafico = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: nomes,
-            datasets: [{
-                data: valores,
-                backgroundColor: coresGradiente, 
-                borderWidth: 2, 
-                borderColor: isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.1)', 
-                hoverBorderWidth: 3,
-                hoverBorderColor: isLight ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.5)', 
-                hoverOffset: 8, 
-                borderRadius: 8, 
-                spacing: 2 
-            }]
-        },
-        plugins: [ChartDataLabels],
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '75%', 
-            animation: {
-                animateScale: true,
-                animateRotate: true,
-                easing: 'easeOutExpo' 
+    if (meuGrafico) {
+        meuGrafico.data.labels = nomes;
+        meuGrafico.data.datasets[0].data = valores;
+        meuGrafico.data.datasets[0].backgroundColor = coresSolidas;
+        meuGrafico.data.datasets[0].borderColor = isLight ? 'rgba(255, 255, 255, 0.7)' : 'rgba(10, 10, 20, 0.5)';
+        meuGrafico.data.datasets[0].hoverBorderColor = isLight ? 'rgba(124, 58, 237, 0.4)' : 'rgba(56, 189, 248, 0.7)';
+        meuGrafico.data.datasets[0].hoverOffset = 8;
+        meuGrafico.options.cutout = '79%';
+        meuGrafico.options.layout.padding = 8;
+        meuGrafico.options.plugins.tooltip.backgroundColor = isLight ? 'rgba(255, 255, 255, 0.9)' : 'rgba(10, 10, 10, 0.9)';
+        meuGrafico.options.plugins.tooltip.titleColor = isLight ? '#000' : '#fff';
+        meuGrafico.options.plugins.tooltip.bodyColor = isLight ? '#000' : '#fff';
+        meuGrafico.options.plugins.tooltip.borderColor = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
+
+        meuGrafico.update();
+    } else {
+        meuGrafico = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: nomes,
+                datasets: [{
+                    data: valores,
+                    backgroundColor: coresSolidas,
+                    borderWidth: 2,
+                    borderColor: isLight ? 'rgba(255, 255, 255, 0.7)' : 'rgba(10, 10, 20, 0.5)',
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: isLight ? 'rgba(124, 58, 237, 0.4)' : 'rgba(56, 189, 248, 0.7)',
+                    hoverOffset: 8,
+                    borderRadius: 10,
+                    spacing: 3
+                }]
             },
-            layout: { padding: 15 },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: isLight ? 'rgba(255, 255, 255, 0.9)' : 'rgba(10, 10, 10, 0.9)',
-                    titleColor: isLight ? '#000' : '#fff',
-                    bodyColor: isLight ? '#000' : '#fff',
-                    borderColor: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
-                    borderWidth: 1,
-                    padding: 12,
-                    cornerRadius: 8,
-                    callbacks: {
-                        label: function(context) {
-                            return ' ' + formatarMoeda(context.raw);
-                        }
-                    }
+            plugins: [ChartDataLabels],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '79%',
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
+                    easing: 'easeOutExpo'
                 },
-                datalabels: {
-                    color: '#fff',
-                    font: { weight: '800', size: 12 },
-                    textShadowBlur: 4,
-                    textShadowColor: 'rgba(0,0,0,0.8)',
-                    formatter: (v, context) => {
-                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                        const percentagem = (v / total) * 100;
-                        return percentagem < 8 ? null : percentagem.toFixed(0) + '%';
+                layout: { padding: 8 },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: isLight ? 'rgba(255, 255, 255, 0.9)' : 'rgba(10, 10, 10, 0.9)',
+                        titleColor: isLight ? '#000' : '#fff',
+                        bodyColor: isLight ? '#000' : '#fff',
+                        borderColor: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + formatarMoeda(context.raw);
+                            }
+                        }
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: '800', size: 12 },
+                        textShadowBlur: 4,
+                        textShadowColor: 'rgba(0,0,0,0.8)',
+                        formatter: (v, context) => {
+                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const percentagem = (v / total) * 100;
+                            return percentagem < 8 ? null : percentagem.toFixed(0) + '%';
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 }
 
 function alternarTema() { 
     document.body.classList.toggle('light-mode');
     const isLight = document.body.classList.contains('light-mode');
     localStorage.setItem('temaFinanceiro', isLight ? 'light' : 'dark');
-    document.getElementById('btn-tema').innerHTML = isLight ? '🌙 Modo Escuro' : '☀️ Modo Claro';
+    const btnTema = document.getElementById('btn-tema');
+    btnTema.innerHTML = isLight ? SVG_LUA : SVG_SOL;
+    btnTema.title = isLight ? 'Alternar Tema (Modo Escuro)' : 'Alternar Tema (Modo Claro)';
+    btnTema.setAttribute('aria-label', btnTema.title);
     filtrarEAtualizar();
 }
 
 if (localStorage.getItem('temaFinanceiro') === 'light') {
     document.body.classList.add('light-mode');
-    document.getElementById('btn-tema').innerHTML = '🌙 Modo Escuro';
+    const btnTemaInit = document.getElementById('btn-tema');
+    btnTemaInit.innerHTML = SVG_LUA;
+    btnTemaInit.title = 'Alternar Tema (Modo Escuro)';
+    btnTemaInit.setAttribute('aria-label', btnTemaInit.title);
 }
 
 document.body.addEventListener('click', function(e) {
@@ -927,7 +1175,7 @@ document.body.addEventListener('click', function(e) {
 });
 
 /* =========================================
-   INTEGRAÇÃO COM A INTELIGÊNCIA ARTIFICIAL
+   INTEGRACAO COM A INTELIGENCIA ARTIFICIAL
    ========================================= */
 
 const btnAbrirChat = document.getElementById('btn-abrir-chat');
@@ -936,6 +1184,14 @@ const btnFecharChat = document.getElementById('btn-fechar-chat');
 const btnEnviarIa = document.getElementById('btn-enviar-ia');
 const inputMensagemIa = document.getElementById('input-mensagem-ia');
 const areaMensagens = document.getElementById('area-mensagens');
+const chatStatus = document.querySelector('.chat-status');
+const textoBtnIa = document.querySelector('.btn-ia-texto');
+
+const COHERE_API_KEY = "SUA_COHERE_API_KEY";
+const USA_CLOUD_FUNCTION = false;
+const URL_CLOUD_FUNCTION = 'https://us-central1-monitoramento-de-gastos.cloudfunctions.net/chatIA';
+const MENSAGEM_IA_ATIVA = 'Ol\u00e1! Sou sua IA financeira. Tenho acesso aos seus dados \u2014 pergunte sobre seus gastos, saldo ou pe\u00e7a dicas!';
+const MENSAGEM_IA_DEMO = 'A IA está desativada nesta demonstração. Quando você quiser mostrar o recurso, adicione a chave da Cohere e recarregue a página.';
 
 btnAbrirChat.addEventListener('click', () => {
     containerChatIa.classList.remove('chat-ia-oculto');
@@ -990,9 +1246,61 @@ function formatarTextoIA(texto) {
     html = html.replace(/\*([^*]+?)\*/g, '<em>$1</em>');
     html = html.replace(/\u0000BOLD_OPEN\u0000/g, '<strong>');
     html = html.replace(/\u0000BOLD_CLOSE\u0000/g, '</strong>');
-    html = html.replace(/\n[-•]\s/g, '\n• ');
+    html = html.replace(/\n[-⬢]\s/g, '\n⬢ ');
     html = html.replace(/\n/g, '<br>');
     return html;
+}
+
+function iaConfigurada() {
+    return USA_CLOUD_FUNCTION || (COHERE_API_KEY && COHERE_API_KEY.trim() !== '' && COHERE_API_KEY !== 'SUA_COHERE_API_KEY');
+}
+
+function resetarMensagemInicialIA() {
+    const mensagemInicial = iaConfigurada() ? MENSAGEM_IA_ATIVA : MENSAGEM_IA_DEMO;
+    areaMensagens.innerHTML = `
+        <div class="mensagem ia">
+            <div class="mensagem-conteudo">${formatarTextoIA(mensagemInicial)}</div>
+        </div>`;
+}
+
+function atualizarEstadoChat() {
+    const configurada = iaConfigurada();
+    const online = navigator.onLine;
+    const podeUsarIA = configurada && online;
+
+    btnAbrirChat.title = !configurada
+        ? 'Assistente IA em modo de demonstração'
+        : online
+            ? 'Abrir assistente de IA'
+            : 'Assistente IA offline';
+    btnAbrirChat.setAttribute('aria-label', btnAbrirChat.title);
+    if (textoBtnIa) {
+        textoBtnIa.textContent = configurada ? 'Assistente IA' : 'IA Demo';
+    }
+
+    if (chatStatus) {
+        chatStatus.className = 'chat-status';
+
+        if (!configurada) {
+            chatStatus.textContent = '\u25cf Demo';
+            chatStatus.classList.add('demo');
+        } else if (!online) {
+            chatStatus.textContent = '\u25cf Offline';
+            chatStatus.classList.add('offline');
+        } else {
+            chatStatus.textContent = '\u25cf Online';
+            chatStatus.classList.add('online');
+        }
+    }
+
+    inputMensagemIa.disabled = !podeUsarIA;
+    btnEnviarIa.disabled = !podeUsarIA;
+    btnEnviarIa.setAttribute('aria-disabled', String(!podeUsarIA));
+    inputMensagemIa.placeholder = !configurada
+        ? 'Adicione sua chave para demonstrar a IA'
+        : online
+            ? 'Pergunte algo...'
+            : 'Conecte-se para usar a IA';
 }
 
 function gerarContextoFinanceiro() {
@@ -1033,14 +1341,10 @@ CONTEXTO FINANCEIRO DO USUÁRIO (período: ${periodo}):
 - Despesas totais: R$ ${totalDespesas.toFixed(2)}
 - Saldo: R$ ${saldo.toFixed(2)} (${saldo >= 0 ? 'positivo' : 'NEGATIVO'})
 - Gastos por categoria: ${categorias || 'nenhum'}
-- Últimos lançamentos: ${ultimosLancamentos.join(' | ') || 'nenhum'}
+- \u00daltimos lan\u00e7amentos: ${ultimosLancamentos.join(' | ') || 'nenhum'}
 - Total de lançamentos: ${dados.length}
 `.trim();
 }
-
-const COHERE_API_KEY = "SUA_COHERE_API_KEY";
-const USA_CLOUD_FUNCTION = false; 
-const URL_CLOUD_FUNCTION = 'https://us-central1-monitoramento-de-gastos.cloudfunctions.net/chatIA';
 
 let iaOcupada = false;
 const COOLDOWN_IA_MS = 3000;
@@ -1077,6 +1381,16 @@ async function chamarAPIIA(mensagens) {
 }
 
 async function enviarMensagemParaIA(mensagemUsuario) {
+    if (!iaConfigurada()) {
+        mostrarToast("A IA está em modo de demonstração. Adicione a chave para ativá-la.", "erro");
+        return;
+    }
+
+    if (!navigator.onLine) {
+        mostrarToast("Você está offline. Conecte-se para usar a IA.", "erro");
+        return;
+    }
+
     if (iaOcupada) {
         mostrarToast("Aguarde alguns segundos antes de enviar outra mensagem.", "erro");
         return;
@@ -1086,6 +1400,7 @@ async function enviarMensagemParaIA(mensagemUsuario) {
 
     const idMensagemCarregando = mostrarDigitandoIA();
     btnEnviarIa.disabled = true;
+    inputMensagemIa.disabled = true;
 
     try {
         const contexto = gerarContextoFinanceiro();
@@ -1129,7 +1444,7 @@ async function enviarMensagemParaIA(mensagemUsuario) {
             historicoChat.pop();
         }
     } finally {
-        btnEnviarIa.disabled = false;
+        atualizarEstadoChat();
     }
 }
 
@@ -1154,6 +1469,7 @@ inputMensagemIa.addEventListener('keypress', (e) => {
    ========================================= */
 
 document.querySelectorAll('.btn-toggle-senha').forEach(btn => {
+    btn.setAttribute('aria-label', btn.title);
     btn.addEventListener('click', () => {
         const input = document.getElementById(btn.dataset.alvo);
         if (!input) return;
@@ -1168,6 +1484,7 @@ document.querySelectorAll('.btn-toggle-senha').forEach(btn => {
         olhoFechado.style.display = isPassword ? 'block' : 'none';
         
         btn.title = isPassword ? 'Ocultar senha' : 'Mostrar senha';
+        btn.setAttribute('aria-label', btn.title);
     });
 });
 
@@ -1181,11 +1498,13 @@ function atualizarStatusConexao() {
         bannerOffline.style.display = 'none';
         document.body.classList.remove('modo-offline');
     }
+
+    atualizarEstadoChat();
 }
 
 window.addEventListener('online', () => {
     atualizarStatusConexao();
-    mostrarToast("Conexão restabelecida! 🟢");
+    mostrarToast("Conexão restabelecida!");
 });
 
 window.addEventListener('offline', () => {
@@ -1196,147 +1515,7 @@ window.addEventListener('offline', () => {
 atualizarStatusConexao();
 
 /* =========================================
-   SELECT CUSTOMIZADO PARA DESKTOP
-   ========================================= */
-
-function ehDesktop() {
-    return window.matchMedia('(min-width: 800px)').matches;
-}
-
-function criarCustomSelect(selectEl) {
-    if (selectEl.dataset.customizado) return;
-    selectEl.dataset.customizado = 'true';
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'custom-select-wrapper';
-
-    const trigger = document.createElement('div');
-    trigger.className = 'custom-select-trigger';
-    trigger.setAttribute('tabindex', '0');
-
-    const labelSpan = document.createElement('span');
-    labelSpan.className = 'custom-select-label';
-
-    const arrowSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    arrowSvg.setAttribute('class', 'custom-select-arrow');
-    arrowSvg.setAttribute('viewBox', '0 0 24 24');
-    arrowSvg.setAttribute('fill', 'none');
-    arrowSvg.setAttribute('stroke', 'currentColor');
-    arrowSvg.setAttribute('stroke-width', '2.5');
-    arrowSvg.setAttribute('stroke-linecap', 'round');
-    arrowSvg.setAttribute('stroke-linejoin', 'round');
-    arrowSvg.innerHTML = '<polyline points="6 9 12 15 18 9"/>';
-
-    trigger.appendChild(labelSpan);
-    trigger.appendChild(arrowSvg);
-
-    const dropdown = document.createElement('div');
-    dropdown.className = 'custom-select-dropdown';
-
-    selectEl.parentNode.insertBefore(wrapper, selectEl);
-    wrapper.appendChild(trigger);
-    wrapper.appendChild(dropdown);
-    wrapper.appendChild(selectEl);
-
-    function sincronizarOpcoes() {
-        dropdown.innerHTML = '';
-        Array.from(selectEl.options).forEach(opt => {
-            if (opt.disabled && opt.value === '') return;
-            const div = document.createElement('div');
-            div.className = 'custom-select-option';
-            if (opt.value === selectEl.value) div.classList.add('selecionado');
-            div.textContent = opt.textContent;
-            div.dataset.valor = opt.value;
-            div.addEventListener('click', (e) => {
-                e.stopPropagation();
-                selectEl.value = opt.value;
-                selectEl.dispatchEvent(new Event('change', { bubbles: true }));
-                fechar();
-            });
-            dropdown.appendChild(div);
-        });
-        atualizarLabel();
-    }
-
-    function atualizarLabel() {
-        const optSelecionada = selectEl.options[selectEl.selectedIndex];
-        if (!optSelecionada || (optSelecionada.disabled && optSelecionada.value === '')) {
-            labelSpan.textContent = selectEl.options[0]?.textContent || 'Escolha...';
-            labelSpan.classList.add('placeholder');
-        } else {
-            labelSpan.textContent = optSelecionada.textContent;
-            labelSpan.classList.remove('placeholder');
-        }
-        dropdown.querySelectorAll('.custom-select-option').forEach(el => {
-            el.classList.toggle('selecionado', el.dataset.valor === selectEl.value);
-        });
-    }
-
-    function abrir() {
-        if (!ehDesktop()) return;
-        sincronizarOpcoes();
-        dropdown.classList.add('visivel');
-        trigger.classList.add('aberto');
-    }
-
-    function fechar() {
-        dropdown.classList.remove('visivel');
-        trigger.classList.remove('aberto');
-    }
-
-    function toggle(e) {
-        e.stopPropagation();
-        if (!ehDesktop()) {
-            selectEl.style.position = '';
-            selectEl.style.opacity = '';
-            selectEl.style.pointerEvents = '';
-            selectEl.focus();
-            return;
-        }
-        if (dropdown.classList.contains('visivel')) {
-            fechar();
-        } else {
-            document.querySelectorAll('.custom-select-dropdown.visivel').forEach(d => {
-                d.classList.remove('visivel');
-            });
-            document.querySelectorAll('.custom-select-trigger.aberto').forEach(t => {
-                t.classList.remove('aberto');
-            });
-            abrir();
-        }
-    }
-
-    trigger.addEventListener('click', toggle);
-    trigger.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(e); }
-        if (e.key === 'Escape') fechar();
-    });
-
-    const observer = new MutationObserver(() => {
-        sincronizarOpcoes();
-    });
-    observer.observe(selectEl, { childList: true, subtree: true, attributes: true });
-
-    selectEl.addEventListener('change', atualizarLabel);
-    sincronizarOpcoes();
-
-    return { sincronizar: sincronizarOpcoes, fechar };
-}
-
-document.addEventListener('click', () => {
-    document.querySelectorAll('.custom-select-dropdown.visivel').forEach(d => {
-        d.classList.remove('visivel');
-    });
-    document.querySelectorAll('.custom-select-trigger.aberto').forEach(t => {
-        t.classList.remove('aberto');
-    });
-});
-
-criarCustomSelect(document.getElementById('tipo-lancamento'));
-criarCustomSelect(document.getElementById('categoria'));
-
-/* =========================================
-   MECANISMO DE SEGURANÇA: LOGOUT AUTOMÁTICO
+   MECANISMO DE SEGURANCA: LOGOUT AUTOMATICO
    ========================================= */
 
 const TEMPO_LIMITE_INATIVIDADE = 600000; 
@@ -1352,9 +1531,103 @@ function resetarTimer() {
     }
 }
 
-window.onload = resetarTimer;
-document.onmousemove = resetarTimer;
-document.onkeypress = resetarTimer;
-document.onclick = resetarTimer;
-document.ontouchstart = resetarTimer;
-document.onscroll = resetarTimer;
+window.addEventListener('load', resetarTimer);
+document.addEventListener('mousemove', resetarTimer);
+document.addEventListener('keydown', resetarTimer);
+document.addEventListener('click', resetarTimer);
+document.addEventListener('touchstart', resetarTimer, { passive: true });
+document.addEventListener('scroll', resetarTimer, { passive: true });
+
+/* =========================================
+   TICKER DA TELA DE LOGIN - scramble animado
+   ========================================= */
+(function() {
+    const alvos = {
+        receita: { id: 'ticker-receita', min: 6000, max: 14000 },
+        despesa: { id: 'ticker-despesa', min: 1500, max: 8000 },
+        saldo: { id: 'ticker-saldo' }
+    };
+
+    const DIGITOS = '0123456789';
+
+    function fmt(v) {
+        return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    // Efeito terminal: dígitos embaralham da esquerda para direita
+    // antes de "assentar" no valor final
+    function scramble(el, valorFinal, durMs) {
+        const textoFinal = fmt(valorFinal);
+        const len = textoFinal.length;
+        const totalPassos = Math.ceil(durMs / 45);
+        let passo = 0;
+
+        // cancela animação anterior se houver
+        if (el._scrambleTimer) clearInterval(el._scrambleTimer);
+
+        el._scrambleTimer = setInterval(() => {
+            passo++;
+            const progresso = passo / totalPassos;
+
+            let resultado = '';
+            for (let i = 0; i < len; i++) {
+                const char = textoFinal[i];
+                const ehDigito = /[0-9]/.test(char);
+                // cada posição assenta progressivamente da esquerda para a direita
+                const assentou = progresso > (i / len) * 0.9;
+                if (!ehDigito || assentou) {
+                    resultado += char;
+                } else {
+                    resultado += DIGITOS[Math.floor(Math.random() * 10)];
+                }
+            }
+            el.textContent = resultado;
+
+            if (passo >= totalPassos) {
+                clearInterval(el._scrambleTimer);
+                el._scrambleTimer = null;
+                el.textContent = textoFinal;
+            }
+        }, 45);
+    }
+
+    // Reordena as barras do preview card com alturas aleatórias
+    function atualizarBarras() {
+        const barras = document.querySelectorAll('.preview-bar');
+        if (!barras.length) return;
+        barras.forEach(b => {
+            const h = (20 + Math.random() * 75).toFixed(1);
+            b.style.height = h + '%';
+        });
+    }
+
+    function sortearValor(min, max) {
+        return min + Math.random() * (max - min);
+    }
+
+    function ciclo() {
+        const DUR = 1400;
+        const novaReceita = sortearValor(alvos.receita.min, alvos.receita.max);
+        const novaDespesa = sortearValor(alvos.despesa.min, alvos.despesa.max);
+        const novoSaldo = novaReceita - novaDespesa;
+        [
+            { id: alvos.receita.id, valor: novaReceita },
+            { id: alvos.despesa.id, valor: novaDespesa },
+            { id: alvos.saldo.id, valor: novoSaldo }
+        ].forEach(({ id, valor }) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            scramble(el, valor, DUR);
+        });
+        // Sincroniza o "Saldo este mês" do preview card com o mesmo scramble
+        const previewValor = document.querySelector('.preview-valor');
+        if (previewValor) {
+            scramble(previewValor, novoSaldo, DUR);
+        }
+        atualizarBarras();
+    }
+
+    // primeira execução após um breve delay, depois a cada 4s
+    setTimeout(ciclo, 500);
+    setInterval(ciclo, 4000);
+})();
