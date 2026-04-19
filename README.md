@@ -98,10 +98,32 @@ Depois do `firebase serve`, abra a URL local informada pela CLI para testar a ap
 
 ## Como funciona
 
-1. O usuário autentica via Firebase Authentication.
-2. Os lançamentos são lidos e gravados no Cloud Firestore.
-3. O dashboard recalcula receitas, despesas, saldo e distribuição por categoria.
-4. O assistente consulta o contexto financeiro atual e responde via Cohere, localmente ou por proxy.
+A experiência se organiza em um ciclo curto de leitura financeira: autenticar, registrar, consolidar e consultar.
+
+<p align="center">
+  <strong>Entrar</strong> → <strong>Registrar</strong> → <strong>Consolidar</strong> → <strong>Consultar IA</strong>
+</p>
+
+**1. Entrar**  
+Você abre o fechamento financeiro com login protegido.  
+`Firebase Authentication` valida a sessão e identifica o usuário.
+
+**2. Registrar**  
+Você cria, edita e consulta receitas e despesas do período.  
+`Cloud Firestore` lê e grava a coleção `despesas` em tempo real.
+
+**3. Consolidar**  
+O dashboard recalcula saldo, categorias, gráficos e filtro mensal.  
+O front transforma os lançamentos em leitura prática para o período atual.
+
+**4. Consultar IA**  
+Você pede análise do saldo, padrões de gasto e próximos ajustes.  
+O app monta o contexto financeiro e consulta `Cohere`, direto ou via `Cloud Function`.
+
+<details>
+<summary><strong>Ver diagrama técnico compacto</strong></summary>
+
+<br />
 
 ```mermaid
 %%{init: {'theme':'base', 'themeVariables': {
@@ -110,24 +132,25 @@ Depois do `firebase serve`, abra a URL local informada pela CLI para testar a ap
   'primaryBorderColor':'#7c3aed',
   'lineColor':'#a78bfa'
 }}}%%
-flowchart LR
-    U([Usuário]) --> B[Browser]
-    B -->|login| FA[Firebase Auth]
-    B -->|CRUD| FS[(Firestore)]
-    B -->|chat| IA{{IA}}
-    IA -->|demo| D[Demo]
-    IA -->|direto| CO[Cohere]
-    IA -->|proxy| CF[Cloud Fn.] --> CO
-    FS -. regras .- R[firestore.rules]
+flowchart TB
+    J1["1. Entrar"] --> J2["2. Registrar"] --> J3["3. Consolidar"] --> J4["4. Consultar IA"]
 
-    classDef firebase fill:#6d28d9,stroke:#a78bfa,color:#fff
-    classDef cohere fill:#a78bfa,stroke:#7c3aed,color:#0a0a14
+    J1 -. sessão .-> A1
+    J2 -. dados .-> A2
+    J3 -. leitura .-> A3
+    J4 -. contexto .-> A4
+    R["firestore.rules"]:::rules -. protege .-> A2
+
+    classDef journey fill:#6d28d9,stroke:#a78bfa,color:#fff
+    classDef infra fill:#a78bfa,stroke:#7c3aed,color:#0a0a14
     classDef rules fill:#13131f,stroke:#2a2a40,color:#8b8ba3
 
-    class FA,FS firebase
-    class CO,CF cohere
-    class R,D rules
+    class J1,J2,J3,J4 journey
+    class A1,A2,A3,A4 infra
+    class R rules
 ```
+
+</details>
 
 <details>
 <summary><strong>Modelo de dados</strong></summary>
