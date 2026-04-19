@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-label="Gastos Mensais com leitura financeira em destaque">
+  <defs>
+    <linearGradient id="bg-header" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#14141c"/>
+      <stop offset="100%" stop-color="#0a0b11"/>
+    </linearGradient>
+    <linearGradient id="bars-header" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#ddd6fe"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="32" y="32" width="1136" height="296" rx="28" fill="url(#bg-header)"/>
+  <rect x="32" y="32" width="1136" height="296" rx="28" fill="none" stroke="#2a2537" stroke-width="1.5"/>
+
+  <text x="112" y="108" fill="#9f95bc" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="3">
+    FECHAMENTO FINANCEIRO
+  </text>
+
+  <text x="112" y="186" fill="#f5f3ff" font-family="Segoe UI, Arial, sans-serif" font-size="78" font-weight="800">
+    Gastos
+  </text>
+  <text x="112" y="262" fill="#b8b2c7" font-family="Segoe UI, Arial, sans-serif" font-size="78" font-weight="700">
+    Mensais
+  </text>
+
+  <line x1="114" y1="284" x2="1048" y2="284" stroke="#3a3450" stroke-width="2"/>
+  <line x1="114" y1="284" x2="716" y2="284" stroke="#8b5cf6" stroke-width="3" opacity="0.65"/>
+
+  <g transform="translate(736 74)">
+    <rect x="0" y="156" width="54" height="54" rx="10" fill="url(#bars-header)"/>
+    <rect x="72" y="116" width="54" height="94" rx="10" fill="url(#bars-header)"/>
+    <rect x="144" y="70" width="54" height="140" rx="10" fill="url(#bars-header)"/>
+    <rect x="216" y="18" width="54" height="192" rx="10" fill="url(#bars-header)"/>
+
+    <path d="M8 154 L98 118 L170 74 L242 28" fill="none" stroke="#c4b5fd" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+    <circle cx="242" cy="28" r="6" fill="#ddd6fe"/>
+    <circle cx="242" cy="28" r="14" fill="#a78bfa" opacity="0.18"/>
+  </g>
+
+  <text x="738" y="102" fill="#c4b5fd" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="2.2">
+    LEITURA DO PERIODO
+  </text>
+</svg>
