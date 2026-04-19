@@ -57,7 +57,7 @@
     </td>
     <td width="50%" valign="top">
       <strong>Segurança pensada para produção</strong><br>
-      CSP restritivo, App Check e regras Firestore com whitelist de campos e proteção contra troca de ownership.
+      CSP restritivo, App Check e regras Firestore com lista de campos permitidos e proteção contra troca de titularidade.
     </td>
   </tr>
 </table>
@@ -74,7 +74,7 @@
 
 | Camada | Tecnologia | Papel no projeto |
 |---|---|---|
-| UI | HTML5, CSS3, JavaScript (ES modules) | Interface, interações, responsividade e camada visual sem build step |
+| UI | HTML5, CSS3, JavaScript (ES modules) | Interface, interações, responsividade e camada visual sem etapa de build |
 | Autenticação | Firebase Authentication | Login por e-mail/senha e Google |
 | Banco | Cloud Firestore | Persistência em tempo real com regras declarativas |
 | Hosting | Firebase Hosting | Deploy estático com headers de segurança configurados |
@@ -163,7 +163,7 @@ Coleção `despesas` — um documento por lançamento.
 |---|---|---|
 | `tipo` | string | `entrada` ou `saida` |
 | `descricao` | string | 1-100 caracteres, não apenas espaços em branco |
-| `categoria` | string | whitelist por tipo |
+| `categoria` | string | lista permitida por tipo |
 | `valor` | number | `> 0` e `≤ 9.999.999,99` |
 | `userId` | string | igual a `request.auth.uid`, imutável em updates |
 | `pago` | bool | opcional |
@@ -177,7 +177,7 @@ Coleção `despesas` — um documento por lançamento.
 
 ## Segurança
 
-Este projeto não depende só de autenticação. A proteção está distribuída entre front-end, Firebase e regras de acesso.
+Este projeto não depende apenas de autenticação. A proteção está distribuída entre front-end, Firebase e regras de acesso.
 
 **Headers HTTP em `firebase.json`**
 - `Content-Security-Policy` restrito a origens conhecidas, incluindo Firebase, Cohere e reCAPTCHA.
@@ -190,12 +190,12 @@ Este projeto não depende só de autenticação. A proteção está distribuída
 - validação de campos com `hasAll` e `hasOnly`;
 - checagem de tipos por campo, incluindo `timestamp`;
 - bloqueio de mudança de `userId` durante updates;
-- whitelist de categorias separada para entradas e saídas;
+- lista de categorias permitidas separada para entradas e saídas;
 - validação de `valor > 0 && valor ≤ 9.999.999,99`.
 
 **Camada de IA**
 - modo demo quando a chave não está presente;
-- chave direta no cliente apenas para uso local;
+- chave no cliente apenas para uso local;
 - uso via Cloud Function em produção para esconder a credencial.
 
 ## Configuração opcional
@@ -223,11 +223,12 @@ firebase deploy --only firestore:rules
 
 <br />
 
-**Opção A — chave direto no cliente**  
+No arquivo `public/app.js`, você pode seguir uma das opções abaixo.
+
+**Opção A — chave diretamente no cliente**  
 Indicada apenas para desenvolvimento local.
 
 ```js
-// public/app.js
 const COHERE_API_KEY = "sua-chave-aqui";
 ```
 
@@ -235,7 +236,6 @@ const COHERE_API_KEY = "sua-chave-aqui";
 Recomendada para produção.
 
 ```js
-// public/app.js
 const USA_CLOUD_FUNCTION = true;
 const URL_CLOUD_FUNCTION = 'https://<region>-<projectId>.cloudfunctions.net/chatIA';
 ```
