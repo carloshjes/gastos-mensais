@@ -1,35 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-label="Gastos Mensais com barras animadas em destaque">
   <defs>
     <linearGradient id="bg-header" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#13131f"/>
-      <stop offset="100%" stop-color="#0a0a14"/>
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#fafaf8"/>
     </linearGradient>
     <linearGradient id="bars-header" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0%" stop-color="#38bdf8"/>
-      <stop offset="100%" stop-color="#bae6fd"/>
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#ddd6fe"/>
     </linearGradient>
     <linearGradient id="brand-header" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#7dd3fc"/>
-      <stop offset="100%" stop-color="#38bdf8"/>
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
     </linearGradient>
   </defs>
 
   <rect x="32" y="32" width="1136" height="296" rx="28" fill="url(#bg-header)"/>
-  <rect x="32" y="32" width="1136" height="296" rx="28" fill="none" stroke="#2a2a40" stroke-width="1.5"/>
+  <rect x="32" y="32" width="1136" height="296" rx="28" fill="none" stroke="#e2e0d8" stroke-width="1.5"/>
 
-  <text x="112" y="108" fill="#8b8ba3" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="3">
+  <text x="112" y="108" fill="#6b6b80" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="3">
     FECHAMENTO FINANCEIRO
   </text>
 
-  <text x="112" y="186" fill="#f0f0f5" font-family="Segoe UI, Arial, sans-serif" font-size="78" font-weight="800">
+  <text x="112" y="186" fill="#0f0f1a" font-family="Segoe UI, Arial, sans-serif" font-size="78" font-weight="800">
     Gastos
   </text>
   <text x="112" y="262" fill="url(#brand-header)" font-family="Segoe UI, Arial, sans-serif" font-size="78" font-weight="700">
     Mensais
   </text>
 
-  <line x1="114" y1="284" x2="1048" y2="284" stroke="#2a2a40" stroke-width="2"/>
-  <line x1="114" y1="284" x2="716" y2="284" stroke="#a78bfa" stroke-width="3" opacity="0.55"/>
+  <line x1="114" y1="284" x2="1048" y2="284" stroke="#e2e0d8" stroke-width="2"/>
+  <line x1="114" y1="284" x2="716" y2="284" stroke="#a78bfa" stroke-width="3" opacity="0.7"/>
 
   <g transform="translate(736 74)">
     <rect x="0" y="156" width="54" height="54" rx="10" fill="url(#bars-header)">

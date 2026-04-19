@@ -24,17 +24,17 @@
 
 <p align="center">
   <a href="https://monitoramento-de-gastos.web.app/">
-    <img src="https://img.shields.io/badge/deploy-Firebase%20Hosting-7c3aed?logo=firebase&logoColor=ffffff&labelColor=13131f&style=for-the-badge" alt="Deploy em Firebase Hosting" />
+    <img src="https://img.shields.io/badge/deploy-Firebase%20Hosting-7c3aed?logo=firebase&logoColor=ffffff&labelColor=f4f2ee&style=for-the-badge" alt="Deploy em Firebase Hosting" />
   </a>
-  <img src="https://img.shields.io/badge/status-em%20produ%C3%A7%C3%A3o-10b981?labelColor=13131f&style=for-the-badge" alt="Status em produção" />
+  <img src="https://img.shields.io/badge/status-em%20produ%C3%A7%C3%A3o-a78bfa?labelColor=f4f2ee&style=for-the-badge" alt="Status em produção" />
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/HTML5-1c1c2e?logo=html5&logoColor=7dd3fc&style=flat-square" alt="HTML5" />
-  <img src="https://img.shields.io/badge/CSS3-1c1c2e?logo=css3&logoColor=7dd3fc&style=flat-square" alt="CSS3" />
-  <img src="https://img.shields.io/badge/JavaScript-1c1c2e?logo=javascript&logoColor=7dd3fc&style=flat-square" alt="JavaScript" />
-  <img src="https://img.shields.io/badge/Firebase-1c1c2e?logo=firebase&logoColor=7dd3fc&style=flat-square" alt="Firebase" />
-  <img src="https://img.shields.io/badge/Cohere-1c1c2e?style=flat-square" alt="Cohere" />
+  <img src="https://img.shields.io/badge/HTML5-f4f2ee?logo=html5&logoColor=7c3aed&style=flat-square" alt="HTML5" />
+  <img src="https://img.shields.io/badge/CSS3-f4f2ee?logo=css3&logoColor=7c3aed&style=flat-square" alt="CSS3" />
+  <img src="https://img.shields.io/badge/JavaScript-f4f2ee?logo=javascript&logoColor=7c3aed&style=flat-square" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/Firebase-f4f2ee?logo=firebase&logoColor=7c3aed&style=flat-square" alt="Firebase" />
+  <img src="https://img.shields.io/badge/Cohere-f4f2ee?style=flat-square" alt="Cohere" />
 </p>
 
 ## Visão rápida
@@ -127,10 +127,10 @@ O app monta o contexto financeiro e consulta `Cohere`, direto ou via `Cloud Func
 
 ```mermaid
 %%{init: {'theme':'base', 'themeVariables': {
-  'primaryColor':'#13131f',
-  'primaryTextColor':'#f0f0f5',
-  'primaryBorderColor':'#2a2a40',
-  'lineColor':'#7dd3fc'
+  'primaryColor':'#f4f2ee',
+  'primaryTextColor':'#0f0f1a',
+  'primaryBorderColor':'#e2e0d8',
+  'lineColor':'#a78bfa'
 }}}%%
 flowchart TB
     J1["1. Entrar"] --> J2["2. Registrar"] --> J3["3. Consolidar"] --> J4["4. Consultar IA"]
@@ -141,9 +141,9 @@ flowchart TB
     J4 -. contexto .-> A4
     R["firestore.rules"]:::rules -. protege .-> A2
 
-    classDef journey fill:#1c1c2e,stroke:#7c3aed,color:#f0f0f5
-    classDef infra fill:#13131f,stroke:#38bdf8,color:#f0f0f5
-    classDef rules fill:#13131f,stroke:#2a2a40,color:#8b8ba3
+    classDef journey fill:#7c3aed,stroke:#a78bfa,color:#ffffff
+    classDef infra fill:#ffffff,stroke:#7c3aed,color:#0f0f1a
+    classDef rules fill:#f4f2ee,stroke:#e2e0d8,color:#6b6b80
 
     class J1,J2,J3,J4 journey
     class A1,A2,A3,A4 infra
